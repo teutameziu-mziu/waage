@@ -1,4 +1,4 @@
-<title>Buchwaage Seite 81</title>
+<title>Gleichungen lösen</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
 /* Layout: Aufgabenwahl oben, links die Waage mit Gleichung, rechts der Rechenweg, unten die Bedienung. */
@@ -27,6 +27,9 @@ input[type=number],input[type=text]{width:4em;font:inherit;font-size:1.15rem;pad
 #eq.hid{opacity:.25}
 svg{width:100%;flex:1;min-height:0;display:block}
 #beam{transform-box:view-box;transform-origin:500px 200px;transition:transform 1.2s cubic-bezier(.3,1.5,.5,1)}
+#eqin{margin:2px 0 4px}.eqrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center}.eqrow .v{font-size:1.4rem;font-weight:700}
+.ei{width:64px;text-align:center;font-size:1.3rem;padding:6px 4px}
+#eqmsg{text-align:center;font-weight:700;min-height:1.3em;margin-top:2px}#eqmsg.ok{color:var(--ok)}#eqmsg.bad{color:var(--bad)}
 #stat{font-size:1.15rem;font-weight:700;min-height:1.4em;text-align:center}
 #stat.ok{color:var(--ok)}#stat.bad{color:var(--bad)}
 #rw{flex:0 0 clamp(280px,32%,400px);display:flex;flex-direction:column;gap:6px;min-height:0;overflow:hidden}
@@ -44,7 +47,20 @@ svg{width:100%;flex:1;min-height:0;display:block}
 #msg{font-weight:600;min-height:1.3em}
 #msg.ok{color:var(--ok)}#msg.bad{color:var(--bad)}
 .gone{display:none}
-@media (max-width:820px){.mid{flex-direction:column}#rw{flex:0 0 auto;max-height:40vh}}
+@media (max-width:820px){
+ main{height:auto;min-height:0}
+ .mid{flex-direction:column;flex:none}
+ .scale{flex:none;min-height:340px;height:min(88vw,420px)}
+ #rw,.m5 #rw{flex:none;max-height:none;overflow:visible}
+ #steps{overflow-x:auto;overflow-y:visible}
+ .ht{min-width:560px}
+ main #rk{flex:none;overflow:visible;min-height:0}
+ .rkr{font-size:1.15rem;padding:6px 10px;column-gap:6px}
+ .ht th{font-size:.7rem}.ht .hc{font-size:.78rem}
+ .rb{font-size:.82rem}
+ button.tab{padding:6px 12px}
+ html.ov #steps{grid-template-columns:1fr}
+}
 button.op{min-width:48px;font-size:1.3rem;font-weight:700}
 button.sel{background:var(--accent);color:#fff;border-color:var(--accent)}
 #n5{width:70px;text-align:center;font-size:1.2rem}
@@ -114,8 +130,8 @@ svg.mini{flex:none;height:auto;min-height:0;margin:4px 0}
 
 <main>
 <div class="card row" role="tablist" aria-label="Aufgabe wählen">
-  <strong>Buch S. 81</strong>
-  <button class="tab" role="tab" id="t1" aria-selected="true">Einführung</button>
+  <strong>Einführung</strong>
+  <button class="tab" role="tab" id="t1" aria-selected="true">Ablesen</button>
   <button class="tab" role="tab" id="t2" aria-selected="false">Aufgabe 2</button>
   <button class="tab" role="tab" id="t3" aria-selected="false">Aufgabe 3</button>
   <button class="tab" role="tab" id="t4" aria-selected="false">Aufgabe 4</button>
@@ -128,6 +144,9 @@ svg.mini{flex:none;height:auto;min-height:0;margin:4px 0}
 <div class="mid" id="mid">
   <div class="card scale">
     <div id="eq"></div>
+    <div id="eqin" class="gone"><div class="eqrow"><span class="lab">Deine Gleichung:</span>
+      <input type="number" class="ei" id="e1" min="0" max="20" aria-label="Würfel links"><span class="v">x +</span><input type="number" class="ei" id="e2" min="0" max="60" aria-label="Kugeln links"><span class="v">=</span><input type="number" class="ei" id="e3" min="0" max="20" aria-label="Würfel rechts"><span class="v">x +</span><input type="number" class="ei" id="e4" min="0" max="60" aria-label="Kugeln rechts">
+      <button class="p" id="eqchk">Gleichung prüfen</button></div><div id="eqmsg"></div></div>
     <svg viewBox="0 -25 1000 480" role="img" aria-label="Waage mit Würfeln und Kugeln">
       <g id="beam"><rect x="30" y="195" width="940" height="12" rx="6" fill="var(--beam)"/><g id="items"></g></g>
       <polygon points="500,215 435,425 565,425" fill="var(--stand)" stroke="var(--beam)" stroke-width="5" stroke-linejoin="round"/>
@@ -179,7 +198,7 @@ svg.mini{flex:none;height:auto;min-height:0;margin:4px 0}
 var $=function(i){return document.getElementById(i)};
 var EX=[[1,2,0,5,3],[2,1,0,7,3],[3,2,1,8,3],[0,4,1,1,3],[2,3,1,7,4]],exi=0,showCnt=false;
 var CFG={
- 1:{L:[0,0],R:[0,0],w:3,total:null,text:'<b>Einführung</b> Die Waage ist im Gleichgewicht. Ein Würfel hat ein unbekanntes Gewicht x, eine Kugel wiegt 1. Wie viele Würfel und wie viele Kugeln liegen links, wie viele rechts? Schreibe die Gleichung auf. Finde dann heraus, wie viele Kugeln ein Würfel wiegt, und trage die Zahl ein.<br><span class="hf">✎ Übungsheft: Schreibe die Gleichung und deine Rechnung in dein Übungsheft.</span>'},
+ 1:{L:[0,0],R:[0,0],w:3,total:null,text:'<b>Einführung</b> Die Waage ist im Gleichgewicht. Ein Würfel hat ein unbekanntes Gewicht x, eine Kugel wiegt 1. Wie viele Würfel und wie viele Kugeln liegen links, wie viele rechts? Trage die Gleichung oben ein. Finde dann heraus, wie viele Kugeln ein Würfel wiegt, und trage die Zahl ein.<br><span class="hf">✎ Übungsheft: Schreibe die Gleichung und deine Rechnung in dein Übungsheft.</span>'},
  2:{L:[3,2],R:[1,8],w:3,total:null,text:'<b>Aufgabe 2</b> a) Leere die Waagschalen gleichmäßig, bis links nur noch ein Würfel und keine Kugel liegt. b) Wie viele Kugeln wiegen so viel wie ein Würfel? Erkläre, wie du die Lösung gefunden hast. c) Schreibe zu jedem Schritt eine Gleichung mit Umformung.<br><span class="hf">✎ Übungsheft: Schreibe deine Gleichungen und deine Erklärung in dein Übungsheft.</span>'},
  3:{L:[0,4],R:[1,1],w:3,total:[7,15],text:'<b>Aufgabe 3</b> Die Waage ist im Gleichgewicht. Lege schrittweise möglichst viele Würfel und Kugeln auf (insgesamt 7 Würfel und 15 Kugeln). Die Waage muss immer im Gleichgewicht bleiben. Erkläre dein Vorgehen und vergleiche mit deinem Partner.<br><span class="hf">✎ Übungsheft: Schreibe auf, wie du vorgegangen bist.</span>'},
  5:{L:[4,2],R:[1,8],w:2,total:null,text:'<b>Hefteintrag:</b> 4 Würfel und 2 Kugeln wiegen genau so viel wie 1 Würfel und 8 Kugeln. Wie viele Kugeln sind so schwer wie ein Würfel? Löst die Waage Schritt für Schritt, bis x links auf der Waage alleine steht. Sagt zu jedem Schritt: Was machen wir? Wie lautet die Rechnung?'},
@@ -190,6 +209,7 @@ var mode=1,S,w,H,hidW,rev,eqHid=false;
 function snap(){return {L:{x:S.L.x,k:S.L.k},R:{x:S.R.x,k:S.R.k}}}
 function init(m){
   mode=m;var c=CFG[m];
+  $('eqin').classList.toggle('gone',m!==1);['e1','e2','e3','e4'].forEach(function(id){$(id).value=''});$('eqmsg').textContent='';$('eqmsg').className='';
   ['task','mid','ctl','tg'].forEach(function(id){$(id).classList.toggle('gone',m===6)});$('rk').classList.toggle('gone',m!==6);
   if(m===6){document.documentElement.classList.remove('ov');['t1','t2','t3','t4','t6','t5'].forEach(function(id){$(id).setAttribute('aria-selected',String(id==='t6'))});rkDraw();return}
   $('ops').classList.toggle('gone',m===1);$('cnt').classList.toggle('gone',m!==1);
@@ -390,6 +410,15 @@ $('rk').onclick=function(e){
   rkDraw();
 };
 document.addEventListener('keydown',function(e){if(mode===6&&e.key==='Enter'&&e.target&&e.target.id==='rkans'){var st=rkS[rkI];st.ans=e.target.value;$('rk').querySelector('[data-a="chk"]').click()}});
+function eqChk(){
+  var v=['e1','e2','e3','e4'].map(function(id){var t=$(id).value.trim();return t===''?NaN:parseInt(t,10)});
+  if(v.some(isNaN)){$('eqmsg').className='bad';$('eqmsg').textContent='Fülle alle vier Felder aus (auch eine 0 oder 1).';return}
+  var okL=(v[0]===S.L.x&&v[1]===S.L.k),okR=(v[2]===S.R.x&&v[3]===S.R.k);
+  if(okL&&okR){$('eqmsg').className='ok';$('eqmsg').textContent='✓ Richtig! '+term(S.L.x,S.L.k)+' = '+term(S.R.x,S.R.k);eqHid=false;$('tg').textContent='Gleichung ausblenden';draw(true)}
+  else{$('eqmsg').className='bad';$('eqmsg').textContent=(!okL&&!okR)?'Noch nicht richtig. Zähle links und rechts noch einmal.':(!okL?'Die linke Seite stimmt noch nicht. Zähle noch einmal.':'Die rechte Seite stimmt noch nicht. Zähle noch einmal.')}
+}
+$('eqchk').onclick=eqChk;
+Array.prototype.forEach.call(document.querySelectorAll('.ei'),function(el){el.addEventListener('keydown',function(e){if(e.key==='Enter')eqChk()})});
 function undo(){if(H.length>1){H.pop();S=JSON.parse(JSON.stringify(H[H.length-1].s));H[H.length-1].op='';H[H.length-1].warn=false;H[H.length-1].det=null;say('');draw()}}
 Array.prototype.forEach.call(document.querySelectorAll('button[data-s]'),function(b){b.onclick=function(){act(b.getAttribute('data-s'),b.getAttribute('data-t'),parseInt(b.getAttribute('data-g'),10))}});
 $('div').onclick=divide;
