@@ -216,7 +216,7 @@ function apply(){
   }
   guess=null;cm("");
   hist.push({q:q,o:lab,zw:zw,wr:wr});draw();
-  if(solved(q)){msg("Geschafft! "+V+" = "+(q[0]==1?q[3]:q[1])+". Stimmt das mit deinem Heft?","ok")}else msg("");
+  if(solved(q)){msg("Geschafft! "+V+" = "+(q[0]==1?q[3]:q[1])+".","ok")}else msg("");
 }
 function tilt(lv,rv){return rv>lv?"Die Waage kippt nach rechts.":"Die Waage kippt nach links."}
 function check(){
