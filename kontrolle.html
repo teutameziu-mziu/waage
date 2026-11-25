@@ -51,11 +51,13 @@ a{color:var(--navy)}
  <circle cx="500" cy="200" r="22" fill="#e0a33a" stroke="var(--navy)" stroke-width="5"/>
  <g id="pl" class="pan"></g><g id="pr" class="pan"></g>
 </svg></div>
+<div class="card" id="own" style="display:none"><h2>✎ Gleichung aus dem Geheft eingeben</h2>
+ <div class="row" style="font-size:1.3rem"><input type="number" id="oa" min="0" max="99" value="1" aria-label="Zahl vor x links"> x + <input type="number" id="ob" min="0" max="99" value="3" aria-label="Zahl links"> = <input type="number" id="oc" min="0" max="99" value="0" aria-label="Zahl vor x rechts"> x + <input type="number" id="od" min="0" max="99" value="7" aria-label="Zahl rechts"> <button class="go" id="ob2">Waage bauen</button></div></div>
 <div class="cols">
  <div class="card"><h2>① Rechne mit der Waage</h2>
   <div class="ops" id="ops">
    <button class="op" data-o="+" aria-pressed="false">+</button><button class="op" data-o="-" aria-pressed="true">−</button><button class="op" data-o="*" aria-pressed="false">·</button><button class="op" data-o=":" aria-pressed="false">:</button>
-   <input type="number" id="n" min="1" max="12" value="1" aria-label="Zahl">
+   <input type="number" id="n" min="1" max="99" value="1" aria-label="Zahl">
    <span id="tgt" class="row"><button class="tg2" data-t="x" aria-pressed="false">x</button><button class="tg2" data-t="k" aria-pressed="true">Zahl</button></span>
   </div>
   <div class="row"><button class="go" id="go">Auf beiden Seiten rechnen</button><button id="undo">↶ Zurück</button><button id="rst">Neu</button></div>
@@ -78,7 +80,8 @@ var TASKS=[
  {t:"x subtrahieren",g:"Einzelarbeit",q:[2,0,1,6]},
  {t:"Subtrahieren und Dividieren",g:"Partnerarbeit",q:[2,3,0,11]},
  {t:"x und Zahl subtrahieren",g:"Partnerarbeit",q:[2,1,1,6]},
- {t:"Alle Schritte",g:"Partnerarbeit",q:[3,2,1,8]}];
+ {t:"Alle Schritte",g:"Partnerarbeit",q:[3,2,1,8]},
+ {t:"Eigene Aufgabe",g:"aus dem Übungsheft",q:[1,3,0,7],own:true}];
 var cur=0,hist=[],op="-",tg="k",guess=null;
 var NS="http://www.w3.org/2000/svg";
 function el(n,a,p){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
@@ -92,12 +95,18 @@ function pan(g,c,k,shown){ // g group, items on plate at y=0 (plate top), pan or
   el("line",{x1:0,y1:0,x2:150,y2:165,stroke:"var(--navy)","stroke-width":3},g);
   el("polygon",{points:"-185,165 185,165 140,195 -140,195",fill:"var(--navy)"},g);
   var cw=62,gap=6,x=-170,y=165;
-  for(var i=0;i<c;i++){
+  if(c>5){
+    el("rect",{x:x,y:y-cw,width:150,height:cw,rx:7,fill:"var(--blk)",stroke:"var(--blks)","stroke-width":3},g);
+    var tt=el("text",{x:x+75,y:y-cw/2+9,"text-anchor":"middle","font-size":26,"font-weight":700,fill:"#fff"},g);tt.textContent=shown!==null?c+" · "+shown:c+" x";
+    x+=150+gap;
+  }else for(var i=0;i<c;i++){
     el("rect",{x:x,y:y-cw,width:cw,height:cw,rx:7,fill:"var(--blk)",stroke:"var(--blks)","stroke-width":3},g);
     var t=el("text",{x:x+cw/2,y:y-cw/2+9,"text-anchor":"middle","font-size":shown!==null?26:30,"font-weight":700,fill:"#fff"},g);t.textContent=shown!==null?shown:"x";
     x+=cw+gap;
   }
-  if(k){var r=12,d=28,avail=170-x,cols=Math.max(1,Math.floor(avail/d)),bx=x+r+4;
+  if(k>24){var r2=26;el("circle",{cx:x+r2+6,cy:y-r2-2,r:r2,fill:"var(--ball)",stroke:"var(--balls)","stroke-width":3},g);
+    var t2=el("text",{x:x+r2+6,y:y-r2+8,"text-anchor":"middle","font-size":24,"font-weight":700,fill:"#3a1d10"},g);t2.textContent=k;}
+  else if(k){var r=12,d=28,avail=170-x,cols=Math.max(1,Math.floor(avail/d)),bx=x+r+4;
     for(var j=0;j<k;j++){var cx=bx+(j%cols)*d,cy=y-r-2-Math.floor(j/cols)*d;
       el("circle",{cx:cx,cy:cy,r:r,fill:"var(--ball)",stroke:"var(--balls)","stroke-width":2.5},g);}}
 }
@@ -148,12 +157,15 @@ function check(){
   msg("");
 }
 function pick(i){cur=i;hist=[{q:TASKS[i].q.slice(),o:""}];guess=null;
-  $("ti").textContent="Aufgabe "+(i+1)+": "+TASKS[i].t;$("tg").textContent="· "+TASKS[i].g;
+  $("own").style.display=TASKS[i].own?"block":"none";$("ti").textContent=(TASKS[i].own?"":"Aufgabe "+(i+1)+": ")+TASKS[i].t;$("tg").textContent="· "+TASKS[i].g;
   [].forEach.call(document.querySelectorAll(".tab"),function(b,j){b.setAttribute("aria-selected",j==i)});
   $("cmsg").textContent="";$("g").value="";msg("");draw()}
-TASKS.forEach(function(t,i){var b=document.createElement("button");b.className="tab";b.setAttribute("role","tab");b.textContent=i+1;b.onclick=function(){pick(i)};$("tabs").appendChild(b)});
+TASKS.forEach(function(t,i){var b=document.createElement("button");b.className="tab";b.setAttribute("role","tab");b.textContent=t.own?"✎":i+1;b.onclick=function(){pick(i)};$("tabs").appendChild(b)});
 [].forEach.call(document.querySelectorAll("#ops .op"),function(b){b.onclick=function(){op=b.dataset.o;[].forEach.call(document.querySelectorAll("#ops .op"),function(x){x.setAttribute("aria-pressed",x==b)});$("tgt").style.display=(op=="+"||op=="-")?"flex":"none"}});
 [].forEach.call(document.querySelectorAll(".tg2"),function(b){b.onclick=function(){tg=b.dataset.t;[].forEach.call(document.querySelectorAll(".tg2"),function(x){x.setAttribute("aria-pressed",x==b)})}});
+$("ob2").onclick=function(){var v=["oa","ob","oc","od"].map(function(i){return parseInt($(i).value,10)});
+ if(v.some(function(x){return !(x>=0&&x<=99)})||v[0]+v[2]<1){msg("Gib vier Zahlen von 0 bis 99 ein.","bad");return}
+ hist=[{q:v,o:""}];guess=null;$("cmsg").textContent="";msg("");draw()};
 $("go").onclick=apply;$("ck").onclick=check;
 $("undo").onclick=function(){if(hist.length>1){hist.pop();guess=null;$("cmsg").textContent="";msg("");draw()}};
 $("rst").onclick=function(){pick(cur)};
