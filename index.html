@@ -94,11 +94,11 @@ button.pill.cur.done{color:#fff;background:var(--ok);border-color:var(--ok)}
 .ht td{padding:0 6px;vertical-align:middle}
 .ht th:nth-child(1),.ht td:nth-child(1){width:24%}.ht th:nth-child(2),.ht td:nth-child(2){width:29%}
 .ht tr.sr td{border-top:1px solid var(--line)}
-.ht .hc{font-size:clamp(.85rem,1.9vh,1.05rem);color:var(--fg);line-height:1.25}
+.ht .hc{font-size:clamp(.88rem,2vh,1.1rem);color:var(--fg);line-height:1.25}
 .ht .hc b{font-weight:600;font-size:clamp(.85rem,1.9vh,1.05rem)}
 .ht .arr{text-align:center;font-size:1.3rem;color:var(--accent);line-height:1}
-.ht svg.mini{display:block;width:100%;max-width:clamp(150px,30vh,270px);height:auto;aspect-ratio:1000/215;margin:2px auto;flex:none;min-height:0}
-.rb{display:grid;grid-template-columns:max-content max-content 1fr;column-gap:6px;align-items:center;font-size:clamp(.8rem,1.85vh,.98rem);font-variant-numeric:tabular-nums;line-height:1.35;white-space:nowrap}
+.ht svg.mini{display:block;width:100%;max-width:clamp(150px,25vh,250px);height:auto;aspect-ratio:1000/215;margin:2px auto;flex:none;min-height:0}
+.rb{display:grid;grid-template-columns:max-content max-content 1fr;column-gap:6px;align-items:center;font-size:clamp(.88rem,2.1vh,1.1rem);font-variant-numeric:tabular-nums;line-height:1.35;white-space:nowrap}
 .rb .l{text-align:right}
 .rw{color:var(--bad);font-weight:700}
 .rb .o{color:var(--bad);font-weight:700;padding-left:2px;font-size:.95em}
@@ -198,7 +198,7 @@ svg.mini{flex:none;height:auto;min-height:0;margin:4px 0}
 (function(){
 var $=function(i){return document.getElementById(i)};
 var EX=[[1,2,0,5,3],[2,1,0,7,3],[3,2,1,8,3],[0,4,1,1,3],[2,3,1,7,4]],exi=0,showCnt=false;
-var PV=[[1,2,0,5,3],[2,1,0,7,3],[4,2,1,8,2]],pool=EX;
+var PV=[[1,4,0,9,5],[3,2,0,11,3],[4,2,1,8,2]],pool=EX;
 var CFG={
  1:{L:[0,0],R:[0,0],w:3,total:null,text:'<b>Einführung</b> Die Waage ist im Gleichgewicht. Ein Würfel hat ein unbekanntes Gewicht x, eine Kugel wiegt 1. Wie viele Würfel und wie viele Kugeln liegen links, wie viele rechts? Trage die Gleichung oben ein. Finde dann heraus, wie viele Kugeln ein Würfel wiegt, und trage die Zahl ein.<br><span class="hf">✎ Übungsheft: Schreibe die Gleichung und deine Rechnung in dein Übungsheft.</span>'},
  2:{L:[3,2],R:[1,8],w:3,total:null,text:'<b>Aufgabe 2</b> a) Leere die Waagschalen gleichmäßig, bis links nur noch ein Würfel und keine Kugel liegt. b) Wie viele Kugeln wiegen so viel wie ein Würfel? Erkläre, wie du die Lösung gefunden hast. c) Schreibe zu jedem Schritt eine Gleichung mit Umformung.<br><span class="hf">✎ Übungsheft: Schreibe deine Gleichungen und deine Erklärung in dein Übungsheft.</span>'},
@@ -226,7 +226,7 @@ function init(m){
   H=[{s:snap(),op:'',warn:false}];
   ['t1','t2','t3','t4','t6','t5'].forEach(function(id){$(id).setAttribute('aria-selected',String(id==='t'+m))});
   $('t7').setAttribute('aria-selected',String(m===1&&pool===PV));if(m===1&&pool===PV)$('t1').setAttribute('aria-selected','false');
-  $('task').innerHTML=(m===1&&pool===PV)?'<b>Vorwissen</b> Wie heißt die Gleichung? Lies an der Waage ab und nenne die Gleichung. Der Würfel ist x, die Kugel ist 1. Die letzte Waage kennst du aus deinem Hefteintrag.':c.text;$('msg').textContent='';$('msg').className='';$('ans').value='';
+  $('task').innerHTML=(m===1&&pool===PV)?'<b>Vorwissen</b> a) Lies die Waage ab und trage die Gleichung ein. b) Bestimme x: Wie viele Kugeln wiegt ein Würfel? Rechne im Heft. Der Würfel ist x, die Kugel ist 1. Die letzte Waage ist dein Hefteintrag.':c.text;$('msg').textContent='';$('msg').className='';$('ans').value='';
   if(m===4)$('wset').value=3;
   draw(true);
 }
@@ -276,28 +276,24 @@ function wrapT(t){return t.indexOf(' + ')>=0?'('+t+')':t}
 function tafel(){
   var fin=H[H.length-1].s,solved=(fin.L.x===1&&fin.L.k===0&&fin.R.x===0),n=H.length,
   fr=function(a,b){return '<span class="fr"><i>'+a+'</i><i>'+b+'</i></span>'},
-  h='<table class="ht"><tr><th>Handlung:</th><th>Darstellung am Waagemodell:</th><th>Rechnung:</th></tr>';
+  h='<table class="ht"><tr><th>Handlung:</th><th>Waage:</th><th>Rechnung:</th></tr>';
   for(var i=0;i<n;i++){
-    var s=H[i].s,d=H[i].det,last=(i===n-1),eq=term(s.L.x,s.L.k)+' = '+term(s.R.x,s.R.k);
-    var c1='';if(last&&solved)c1='<b>1 Würfel ist genauso schwer wie '+fin.R.k+' Kugel'+(fin.R.k===1?'':'n')+'</b>';
-    var c3='';
-    if(i===0)c3=rechHid?'<span class="ph">?</span>':'<div class="rb"><span class="l">'+term(s.L.x,s.L.k)+'</span><span class="r">= '+term(s.R.x,s.R.k)+'</span><span></span></div>';
-    if(last&&solved&&i>0&&!rechHid)c3='';
-    h+='<tr class="sr"><td class="hc">'+c1+'</td><td>'+miniSvg(s)+'</td><td>'+c3+'</td></tr>';
+    var s=H[i].s,d=H[i].det,last=(i===n-1),L=term(s.L.x,s.L.k),R=term(s.R.x,s.R.k),hand='',rb='',cls='';
     if(!last&&d){
-      var t=H[i+1].s,L=term(s.L.x,s.L.k),R=term(s.R.x,s.R.k),L2=term(t.L.x,t.L.k),R2=term(t.R.x,t.R.k),hand,rb;
-      var cls='',nt,o1,l2L,l2R;
-      if(d.div){hand='Jede Seite in '+d.div+' gleiche Teile teilen. Nur 1 Teil bleibt liegen.';o1='| : '+d.div;nt='(auf beiden Seiten : '+d.div+')';l2L=wrapT(L)+' <span class="rw">: '+d.div+'</span>';l2R=wrapT(R)+' <span class="rw">: '+d.div+'</span>'}
-      else if(d.mul){hand='Links und rechts alles '+d.mul+'-mal hinlegen.';o1='| · '+d.mul;nt='(auf beiden Seiten · '+d.mul+')';l2L=wrapT(L)+' <span class="rw">· '+d.mul+'</span>';l2R=wrapT(R)+' <span class="rw">· '+d.mul+'</span>'}
+      var t=H[i+1].s,o1,l2L,l2R;
+      if(d.div){hand='Jede Seite in '+d.div+' gleiche Teile teilen. Nur 1 Teil bleibt liegen.';o1='| : '+d.div;l2L=wrapT(L)+' <span class="rw">: '+d.div+'</span>';l2R=wrapT(R)+' <span class="rw">: '+d.div+'</span>'}
+      else if(d.mul){hand='Links und rechts alles '+d.mul+'-mal hinlegen.';o1='| · '+d.mul;l2L=wrapT(L)+' <span class="rw">· '+d.mul+'</span>';l2R=wrapT(R)+' <span class="rw">· '+d.mul+'</span>'}
       else{var sg=d.g>0?'+':'−',nm=d.t==='x'?(d.k+' · x'):String(d.k);
         hand='Links und rechts je '+(d.t==='x'?(d.k===1?'1 Würfel':d.k+' Würfel'):(d.k===1?'1 Kugel':d.k+' Kugeln'))+(d.g>0?' dazulegen':' wegnehmen');
-        cls=d.t==='x'?'hw':'hk';o1='| '+sg+' '+nm;nt='(auf beiden Seiten '+sg+' '+nm+')';l2L=L+' <span class="rw">'+sg+' '+nm+'</span>';l2R=R+' <span class="rw">'+sg+' '+nm+'</span>'}
-      hand='<span class="'+cls+'">'+hand+'</span>';
+        cls=d.t==='x'?'hw':'hk';o1='| '+sg+' '+nm;l2L=L+' <span class="rw">'+sg+' '+nm+'</span>';l2R=R+' <span class="rw">'+sg+' '+nm+'</span>'}
+      hand='<span class="'+cls+'">'+hand+' ↓</span>';
       rb='<span class="l">'+L+'</span><span class="r">= '+R+'</span><span class="o">'+o1+'</span>'+
-         '<span class="l">'+l2L+'</span><span class="r">= '+l2R+'</span><span class="n">'+nt+'</span>'+
-         '<span class="l">'+L2+'</span><span class="r">= '+R2+'</span><span></span>';
-      h+='<tr><td class="hc">'+hand+'</td><td class="arr">↓</td><td>'+(rechHid?'<span class="ph">?</span>':'<div class="rb">'+rb+'</div>')+'</td></tr>';
+         '<span class="l">'+l2L+'</span><span class="r">= '+l2R+'</span><span></span>';
+    }else{
+      if(solved)hand='<b>1 Würfel ist genauso schwer wie '+fin.R.k+' Kugel'+(fin.R.k===1?'':'n')+'</b>';
+      rb='<span class="l"><b>'+L+'</b></span><span class="r"><b>= '+R+'</b></span><span></span>';
     }
+    h+='<tr class="sr"><td class="hc">'+hand+'</td><td>'+miniSvg(s)+'</td><td>'+(rechHid&&(i>0||!last)?'<span class="ph">?</span>':'<div class="rb">'+rb+'</div>')+'</td></tr>';
   }
   h+='</table><div class="side">';
   if(solved)h+='<div class="res"><b>Die Lösung ist x = '+fin.R.k+'</b></div>';
@@ -308,7 +304,7 @@ function tafel(){
     h+='<div class="box">'+(solved?'<b>Probe</b> mit x = '+w0+'<br>'+term(s0.L.x,s0.L.k)+' = '+term(s0.R.x,s0.R.k)+' <small>(Anfangsgleichung)</small><br>'+f1(s0.L)+' = '+f1(s0.R)+' <small>(x einsetzen)</small><br>'+f2(s0.L)+' = '+f2(s0.R)+'<br>'+f3(s0.L)+' = '+f3(s0.R)+' ✓':'Löse zuerst die Gleichung, dann kannst du die Probe machen.')+'</div>'}
   if(merkeOn)h+='<div class="box"><b>Merke</b> So löst du eine Gleichung:<br>1. <b>Zuerst vereinfachen:</b> Gleiches auf jeder Seite zusammenfassen (z. B. x zu x, Zahlen zu Zahlen).<br>2. <b>Dann umformen:</b> Auf beiden Seiten das Gleiche rechnen, bis x ganz allein steht (das nennt man <b>Äquivalenzumformung</b>).<br>3. Am Ende steht da <b>x = Ergebnis</b> (nicht −x).<br>4. <b>Probe:</b> x in die Anfangsgleichung einsetzen. Kommt links und rechts das Gleiche raus, stimmt es.</div>';
   h+='</div>';
-  if(merkeOn)h+='<div class="tip"><b>Wichtig:</b> Eine Gleichung ist wie eine Waage – sie muss immer im Gleichgewicht sein. Darum gilt: Was links gerechnet wird, muss auch rechts gerechnet werden (z. B. links 2 abziehen → rechts auch 2 abziehen).</div>';
+  if(merkeOn)h+='<div class="tip"><b>Wichtig:</b> Eine Gleichung ist wie eine Waage. Was links gerechnet wird, wird auch rechts gerechnet.</div>';
   document.documentElement.classList.toggle('ov',solved&&merkeOn);
   $('steps').innerHTML=h;$('steps').scrollTop=(solved&&merkeOn)?0:1e6;
   $('hidr').textContent=rechHid?'Rechnung zeigen':'Rechnung verdecken';
@@ -319,7 +315,7 @@ function tafel(){
 function introPanel(){
   $('ops').classList.add('gone');$('wrow1').classList.remove('gone');$('wrow4').classList.add('gone');$('wrow5').classList.add('gone');$('cnt').classList.remove('gone');
   $('undo').textContent='← Vorherige';$('newb').textContent='Nächste Waage →';$('cnt').textContent=showCnt?'Zählhilfe ausblenden':'Zählhilfe zeigen';
-  $('rw').firstElementChild.textContent=pool===PV?'Wie heißt die Gleichung?':'So liest du die Waage';$('tohe').classList.toggle('gone',pool!==PV);
+  $('rw').firstElementChild.textContent=pool===PV?'Vorwissen: Gleichung und x':'So liest du die Waage';$('tohe').classList.toggle('gone',pool!==PV);
   var h='<div class="st"><span>Würfel = x (unbekannt)</span></div><div class="st"><span>Kugel = 1</span></div><div class="st"><span>Links und rechts gleich schwer: =</span></div>';
   if(showCnt)h+='<div class="st last"><span>Links: '+S.L.x+' Würfel, '+S.L.k+' Kugeln</span></div><div class="st last"><span>Rechts: '+S.R.x+' Würfel, '+S.R.k+' Kugeln</span></div>';
   h+='<div class="st"><span>Waage '+(exi+1)+' von '+pool.length+'</span></div>';
