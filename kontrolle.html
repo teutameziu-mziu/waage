@@ -53,18 +53,22 @@ details summary{cursor:pointer;font-weight:700;color:var(--navy);font-size:1.1re
 .vb[aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
 @media (prefers-color-scheme:dark){.vb[aria-pressed=true]{color:#0f0f10}}
 .steps3{margin:6px 0 0;padding-left:1.3em}.steps3 li{margin:2px 0}
+.stage{display:grid;grid-template-columns:1fr;gap:10px}
+#right{display:flex;flex-direction:column;gap:10px;min-width:0}
+@media (min-width:900px){#hd{display:flex;gap:16px;align-items:center;flex-wrap:wrap}#hd ol{margin:0!important;padding:4px 10px 4px 24px!important;flex:1}.tab{width:40px;height:40px;font-size:1.1rem}.pill{padding:5px 12px;font-size:.95rem}.gl{min-width:0}#cmsg{font-size:1.15rem;min-height:1.6em}#nav details{display:inline-block;margin:0 0 0 14px}.card h2{margin:0 0 4px}.stage{gap:8px}#left{display:flex;flex-direction:column;gap:8px}.stage{grid-template-columns:1.25fr 1fr;align-items:start}svg{max-height:31vh}#hd ol{font-size:.92rem}#hd{padding:4px 12px}#nav{display:flex;flex-wrap:wrap;align-items:center;padding:6px 12px}#nav .grp+details,#nav details{margin:0 0 0 12px}.vq{font-size:1rem;gap:6px}.vq input[type=text]{width:8em;font-size:1rem;padding:4px}#merke h2{display:none}#mmsg,#vmsg{min-height:1.2em;font-size:1.05rem}#eq{font-size:clamp(1.5rem,4vh,2.2rem)}.gl{font-size:.95rem}body{font-size:17px}main{gap:8px}.card{padding:8px 12px}#eq{font-size:clamp(1.6rem,4.5vh,2.4rem)}.steps3{display:flex;gap:18px;flex-wrap:wrap;list-style-position:inside;padding-left:8px!important}}
+.hid{opacity:.3}
+.vq{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.vq input[type=text]{width:9em;font-size:1.2rem;text-align:center;padding:6px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg)}
+#nav details{margin-top:8px}
 </style></head><body><main>
 <div class="card" id="nav">
- <div class="grp"><span class="gl">Pakete knacken</span><span class="grp" id="tp"></span></div>
- <div class="grp"><span class="gl">Übungsheft</span><span class="grp" id="tu"></span></div>
+ <div class="grp"><span class="gl">Vorwissen</span><span class="grp" id="tv"></span><span class="gl" style="min-width:0;margin-left:14px">Pakete knacken</span><span class="grp" id="tp"></span></div>
+ <details><summary>Übungsheft-Aufgaben</summary><div class="grp" style="margin-top:6px"><span class="grp" id="tu"></span></div></details>
 </div>
-<div class="card"><div><span class="ti" id="ti"></span> <span class="tg" id="tg"></span></div>
+<div class="card" id="hd"><div><span class="ti" id="ti"></span> <span class="tg" id="tg"></span></div>
  <ol class="steps3 hint" id="hint" style="margin-top:6px;padding:8px 12px 8px 2em"></ol></div>
-<div class="card" id="own" style="display:none"><h2>Gleichung aus dem Heft eingeben</h2>
- <div class="row" style="margin-bottom:8px">Buchstabe: <button class="vb" data-v="x" aria-pressed="true">x</button><button class="vb" data-v="y" aria-pressed="false">y</button><button class="vb" data-v="z" aria-pressed="false">z</button></div>
- <div class="row lt"><input type="number" id="oa" min="0" max="99" value="1" aria-label="Zahl vor dem Buchstaben links"> · <span class="vl">x</span> + <input type="number" id="ob" min="0" max="99" value="3" aria-label="Zahl links"> = <input type="number" id="oc" min="0" max="99" value="0" aria-label="Zahl vor dem Buchstaben rechts"> · <span class="vl">x</span> + <input type="number" id="od" min="0" max="99" value="7" aria-label="Zahl rechts"> <button class="go" id="ob2">Waage bauen</button></div>
- <div style="opacity:.8;margin-top:6px">Steht kein Buchstabe, schreibe 0. Steht „x“ allein, schreibe 1.</div></div>
-<div class="card"><div id="eq"></div>
+<div class="stage">
+<div id="left"><div class="card"><div id="eq"></div>
 <svg viewBox="0 -10 1000 470" role="img" aria-label="Waage" id="sv">
  <g id="beam"><rect x="190" y="194" width="620" height="12" rx="6" fill="var(--navy)"/></g>
  <polygon points="500,215 440,430 560,430" fill="var(--navy)" opacity=".85"/>
@@ -72,12 +76,24 @@ details summary{cursor:pointer;font-weight:700;color:var(--navy);font-size:1.1re
  <circle cx="500" cy="200" r="22" fill="#e0a33a" stroke="var(--navy)" stroke-width="5"/>
  <g id="pl" class="pan"></g><g id="pr" class="pan"></g>
 </svg></div>
+<div class="card" id="merke" style="display:none"><h2>Merksatz</h2>
+ <div class="vq">Eine Gleichung ist im <input type="text" id="m1" aria-label="Lücke 1" autocomplete="off">. Was ich links mache, mache ich auch <input type="text" id="m2" aria-label="Lücke 2" autocomplete="off">. <button class="go" id="mck">Prüfen</button></div>
+ <div id="mmsg" style="font-weight:700;font-size:1.2rem;min-height:1.4em" aria-live="polite"></div>
+ <div id="mfull" style="display:none;margin-top:6px">1. <b>Zuerst vereinfachen</b>, dann <b>umformen</b>: Auf beiden Seiten das Gleiche rechnen, bis x allein steht.<br>2. Am Ende steht da <b>x = Ergebnis</b>.<br>3. <b>Probe:</b> x einsetzen. Links und rechts muss das Gleiche herauskommen.</div></div>
+</div>
+<div id="right">
+<div class="card" id="veq" style="display:none"><h2>Trage die Gleichung ein</h2>
+ <div class="row lt"><input type="number" id="va" min="0" max="99" aria-label="Zahl vor x links"> · x + <input type="number" id="vb" min="0" max="99" aria-label="Zahl links"> = <input type="number" id="vc" min="0" max="99" aria-label="Zahl vor x rechts"> · x + <input type="number" id="vd" min="0" max="99" aria-label="Zahl rechts"> <button class="go" id="vck">Gleichung prüfen</button></div>
+ <div id="vmsg" style="font-weight:700;font-size:1.2rem;min-height:1.4em" aria-live="polite"></div></div>
+<div class="card" id="own" style="display:none"><h2>Gleichung aus dem Heft eingeben</h2>
+ <div class="row" style="margin-bottom:8px">Buchstabe: <button class="vb" data-v="x" aria-pressed="true">x</button><button class="vb" data-v="y" aria-pressed="false">y</button><button class="vb" data-v="z" aria-pressed="false">z</button></div>
+ <div class="row lt"><input type="number" id="oa" min="0" max="99" value="1" aria-label="Zahl vor dem Buchstaben links"> · <span class="vl">x</span> + <input type="number" id="ob" min="0" max="99" value="3" aria-label="Zahl links"> = <input type="number" id="oc" min="0" max="99" value="0" aria-label="Zahl vor dem Buchstaben rechts"> · <span class="vl">x</span> + <input type="number" id="od" min="0" max="99" value="7" aria-label="Zahl rechts"> <button class="go" id="ob2">Waage bauen</button></div>
+ <div style="opacity:.8;margin-top:6px">Steht kein Buchstabe, schreibe 0. Steht „x“ allein, schreibe 1.</div></div>
 <div class="card"><h2 id="h2c">Prüfe dein Ergebnis</h2>
-  <div class="row big" id="one"><span class="vl">x</span> = <input type="number" id="g" step="any" aria-label="Dein Ergebnis"><span class="kg"> kg</span><button class="go" id="ck">Prüfen</button></div>
-  <div class="row big" id="tot" style="display:none">x = <input type="number" id="gx" step="any" aria-label="Gewicht Paket A"> kg &nbsp; y = <input type="number" id="gy" step="any" aria-label="Gewicht Paket B"> kg<br>Gesamt = <input type="number" id="gg" step="any" aria-label="Gesamtgewicht"> kg <button class="go" id="ck2">Prüfen</button></div>
+  <div class="row big" id="one"><span class="vl">x</span> = <input type="number" id="g" step="any" aria-label="Dein Ergebnis"><span class="kg"> kg</span><button class="go" id="ck">Prüfen</button><button id="clr">Neu eintragen</button></div>
+  <div class="row big" id="tot" style="display:none">x = <input type="number" id="gx" step="any" aria-label="Gewicht Paket A"> kg &nbsp; y = <input type="number" id="gy" step="any" aria-label="Gewicht Paket B"> kg<br>Gesamt = <input type="number" id="gg" step="any" aria-label="Gesamtgewicht"> kg <button class="go" id="ck2">Prüfen</button><button id="clr2">Neu eintragen</button></div>
   <div id="cmsg" aria-live="polite"></div>
-  <div class="row" style="margin-top:4px"><button id="clr">Neu eintragen</button></div></div>
-<div class="card" id="merke" style="display:none"><h2>Merke</h2><div>1. <b>Zuerst vereinfachen:</b> Gleiches auf jeder Seite zusammenfassen.<br>2. <b>Dann umformen:</b> Auf beiden Seiten das Gleiche rechnen, bis x allein steht (Äquivalenzumformung).<br>3. Am Ende steht da <b>x = Ergebnis</b>.<br>4. <b>Probe:</b> x in die Anfangsgleichung einsetzen. Links und rechts muss das Gleiche herauskommen.<br><b>Wichtig:</b> Eine Gleichung ist wie eine Waage. Sie muss immer im Gleichgewicht sein. Was ich links rechne, rechne ich auch rechts.</div></div>
+  </div>
 <details class="card" id="help"><summary>Hilfe: Rechne Schritt für Schritt mit der Waage</summary>
   <div class="ops" id="ops" style="margin-top:10px">
    <button class="op" data-o="+" aria-pressed="false">+</button><button class="op" data-o="-" aria-pressed="true">−</button><button class="op" data-o="*" aria-pressed="false">·</button><button class="op" data-o=":" aria-pressed="false">:</button>
@@ -87,18 +103,23 @@ details summary{cursor:pointer;font-weight:700;color:var(--navy);font-size:1.1re
   <div class="row"><button class="go" id="go">Auf beiden Seiten rechnen</button><button id="undo">↶ Zurück</button><button id="rst">Neu</button></div>
   <div id="msg" aria-live="polite"></div>
   <div id="steps"></div></details>
-<div style="text-align:center;opacity:.8"><a href="./">Zur Hauptwaage (Einführung, Vorwissen)</a></div>
+</div></div>
+<div style="text-align:center;opacity:.8"><a href="./">Zur Einführungs-Waage</a></div>
 </main>
 <script>
 (function(){
 var $=function(i){return document.getElementById(i)};
 var PH=["Rechne zuerst im Heft.","Trage dein Ergebnis ein.","Drücke „Prüfen“. Die Waage zeigt, ob es stimmt."];
+var VH=["Lies die Waage ab. Trage die Gleichung ein.","Bestimme x. Rechne im Heft.","Trage x ein und drücke „Prüfen“."];
 var UH=["Rechne zuerst im Heft.","Trage dein Ergebnis ein.","Drücke „Prüfen“."];
 var TASKS=[
+ {t:"Aufgabe 1",g:"Vorwissen",q:[1,4,0,9],v:"x",grp:"v",vw:1,lab:"1"},
+ {t:"Aufgabe 2",g:"Vorwissen",q:[3,2,0,11],v:"x",grp:"v",vw:1,lab:"2"},
+ {t:"Aufgabe 3",g:"Vorwissen",q:[2,1,1,5],v:"x",grp:"v",vw:1,lab:"3"},
+ {t:"Aufgabe 4",g:"Vorwissen · Hefteintrag",q:[4,2,1,8],v:"x",grp:"v",vw:1,lab:"4",merke:1},
  {t:"Paket A",g:"Paket von Frau Meziu",q:[2,3,0,11],v:"x",kg:1,grp:"p",lab:"Paket A"},
  {t:"Paket B",g:"Paket der Schwester",q:[3,4,1,14],v:"y",kg:1,grp:"p",lab:"Paket B"},
  {t:"Gesamtgewicht",g:"Paket A + Paket B",total:1,v:"x",kg:1,grp:"p",lab:"Gesamtgewicht"},
- {t:"Hefteintrag",g:"aus der letzten Stunde",q:[4,2,1,8],v:"x",grp:"p",lab:"Hefteintrag",merke:1,hint:["Löse die Gleichung Schritt für Schritt mit der Waage (Hilfe unten).","Sage zu jedem Schritt: Was machen wir? Wie lautet die Rechnung?","Mache zum Schluss die Probe: Trage x ein und drücke „Prüfen“."]},
  {t:"Eigene Gleichung",g:"aus dem Heft",q:[1,3,0,7],own:1,v:"x",grp:"p",lab:"Eigene Gleichung"},
  {t:"Subtrahieren",g:"Einzelarbeit",q:[1,4,0,9],v:"x",grp:"u"},
  {t:"Dividieren",g:"Einzelarbeit",q:[3,0,0,12],v:"x",grp:"u"},
@@ -106,10 +127,10 @@ var TASKS=[
  {t:"Subtrahieren und Dividieren",g:"Partnerarbeit",q:[2,3,0,11],v:"x",grp:"u"},
  {t:"x und Zahl subtrahieren",g:"Partnerarbeit",q:[2,1,1,6],v:"x",grp:"u"},
  {t:"Alle Schritte",g:"Partnerarbeit",q:[3,2,1,8],v:"x",grp:"u"}];
-var OWN=4;
+var OWN=7,eqOk=true;
 var cur=0,hist=[],op="-",tg="k",guess=null,V="x",tot=null;
 function solve(q){return (q[3]-q[1])/(q[0]-q[2])}
-var TA=solve(TASKS[0].q),TB=solve(TASKS[1].q);
+var TA=solve(TASKS[4].q),TB=solve(TASKS[5].q);
 var NS="http://www.w3.org/2000/svg";
 function el(n,a,p){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
 function side(c,k){if(!c&&!k)return"0";var s=[];if(c)s.push(c+" · "+V);if(k)s.push(String(k));return s.join(" + ")}
@@ -166,8 +187,8 @@ function draw(){
   var lv=sh===null?0:q[0]*sh+q[1],rv=sh===null?0:q[2]*sh+q[3];
   pan($("pl"),q[0],q[1],sh);pan($("pr"),q[2],q[3],sh);
   place(lv,rv,sh!==null);
-  $("eq").textContent=eqs(q);
-  var h="";for(var i=0;i<hist.length;i++){h+='<div class="st"><span>'+eqs(hist[i].q)+'</span><b>'+(hist[i+1]?hist[i+1].o:"")+'</b></div>'}
+  var hide=T.vw&&!eqOk;$("eq").textContent=hide?"? = ?":eqs(q);$("eq").className=hide?"hid":"";
+  var h="";if(!hide)for(var i=0;i<hist.length;i++){h+='<div class="st"><span>'+eqs(hist[i].q)+'</span><b>'+(hist[i+1]?hist[i+1].o:"")+'</b></div>'}
   $("steps").innerHTML=h;
 }
 function msg(t,c){var m=$("msg");m.textContent=t;m.className=c||""}
@@ -205,6 +226,7 @@ function check(){
       else cm("✓ Gleichgewicht! "+x+" + "+y+" = "+G+". Das Gesamtgewicht stimmt.","ok")}
     else cm("✗ Links: "+(x+y)+"   Rechts: "+G+". "+tilt(x+y,G)+" Rechne noch einmal.","bad");
     return}
+  if(T.vw&&!eqOk){cm("Trage zuerst die Gleichung ein.","bad");return}
   var g=parseFloat($("g").value.replace(",","."));var q=hist[0].q;
   if(isNaN(g)){cm("Gib dein "+V+" ein.","bad");return}
   guess=g;
@@ -219,17 +241,20 @@ function pick(i){cur=i;var T=TASKS[i];tot=null;guess=null;
   if(T.q)hist=[{q:T.q.slice(),o:""}];
   setV(T.own?V:T.v);if(!T.own&&T.v!==V)setV(T.v);
   document.querySelectorAll(".vb").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.v==V)});
+  eqOk=!T.vw;$("veq").style.display=T.vw?"block":"none";["va","vb","vc","vd"].forEach(function(k){$(k).value=""});$("vmsg").textContent="";$("vmsg").className="";
+  $("merke").style.display=T.merke?"block":"none";["m1","m2"].forEach(function(k){$(k).value=""});$("mmsg").textContent="";$("mfull").style.display="none";
   $("own").style.display=T.own?"block":"none";
   $("one").style.display=T.total?"none":"flex";$("tot").style.display=T.total?"block":"none";
   document.querySelectorAll(".kg").forEach(function(e){e.style.display=T.kg?"inline":"none"});
-  $("help").style.display=T.total?"none":"block";$("help").open=!(T.grp=="p"&&!T.own)||!!T.merke;$("merke").style.display=T.merke?"block":"none";
-  $("ti").textContent=T.grp=="p"?T.t:"Aufgabe "+(i-OWN)+": "+T.t;$("tg").textContent="· "+T.g;
-  $("hint").innerHTML=(T.hint||(T.grp=="p"?PH:UH)).map(function(x){return"<li>"+x+"</li>"}).join("");
+  $("help").style.display=T.total||(T.vw&&!eqOk)?"none":"block";$("help").open=T.grp=="u"||!!T.own;
+  $("ti").textContent=T.grp=="u"?"Übungsheft "+(i-OWN)+": "+T.t:T.t;$("tg").textContent="· "+T.g;
+  $("hint").innerHTML=(T.hint||(T.vw?VH:(T.grp=="p"?PH:UH))).map(function(x){return"<li>"+x+"</li>"}).join("");
   $("h2c").textContent=T.total?"Prüfe euer Gesamtgewicht":"Prüfe dein Ergebnis";
   document.querySelectorAll("#nav button").forEach(function(b){b.setAttribute("aria-selected",+b.dataset.i==i)});
   cm("");msg("");$("g").value="";["gx","gy","gg"].forEach(function(k){$(k).value=""});draw()}
 TASKS.forEach(function(t,i){var b=document.createElement("button");b.dataset.i=i;b.setAttribute("role","tab");
-  if(t.grp=="p"){b.className="pill";b.textContent=t.lab;b.onclick=function(){pick(i)};$("tp").appendChild(b)}
+  if(t.grp=="v"){b.className="tab";b.textContent=t.lab;b.onclick=function(){pick(i)};$("tv").appendChild(b)}
+  else if(t.grp=="p"){b.className="pill";b.textContent=t.lab;b.onclick=function(){pick(i)};$("tp").appendChild(b)}
   else{b.className="tab";b.textContent=i-OWN;b.onclick=function(){pick(i)};$("tu").appendChild(b)}});
 var pen=document.createElement("button");pen.className="tab";pen.dataset.i=OWN;pen.setAttribute("role","tab");pen.textContent="✎";pen.setAttribute("aria-label","Eigene Gleichung");pen.onclick=function(){pick(OWN)};$("tu").appendChild(pen);
 [].forEach.call(document.querySelectorAll("#ops .op"),function(b){b.onclick=function(){op=b.dataset.o;[].forEach.call(document.querySelectorAll("#ops .op"),function(x){x.setAttribute("aria-pressed",x==b)});$("tgt").style.display=(op=="+"||op=="-")?"flex":"none"}});
@@ -238,10 +263,19 @@ var pen=document.createElement("button");pen.className="tab";pen.dataset.i=OWN;p
 $("ob2").onclick=function(){var v=["oa","ob","oc","od"].map(function(i){return parseInt($(i).value,10)});
  if(v.some(function(x){return !(x>=0&&x<=99)})||v[0]+v[2]<1){msg("Gib vier Zahlen von 0 bis 99 ein.","bad");return}
  hist=[{q:v,o:""}];guess=null;cm("");msg("");draw()};
+$("vck").onclick=function(){var T=TASKS[cur],q=T.q,v=["va","vb","vc","vd"].map(function(k){var x=$(k).value.trim();return x===""?NaN:parseInt(x,10)});
+ var m=$("vmsg");if(v.some(isNaN)){m.className="bad";m.textContent="Fülle alle vier Felder aus (auch 0 oder 1).";return}
+ var okL=v[0]==q[0]&&v[1]==q[1],okR=v[2]==q[2]&&v[3]==q[3];
+ if(okL&&okR){eqOk=true;m.className="ok";m.textContent="✓ Richtig! "+eqs(q)+". Bestimme jetzt x.";$("help").style.display="block";draw()}
+ else{m.className="bad";m.textContent=(!okL&&!okR)?"Noch nicht richtig. Zähle links und rechts noch einmal.":(!okL?"Die linke Seite stimmt noch nicht.":"Die rechte Seite stimmt noch nicht.")}};
+$("mck").onclick=function(){var a=$("m1").value.trim().toLowerCase(),b=$("m2").value.trim().toLowerCase(),m=$("mmsg");
+ var ok1=a=="gleichgewicht",ok2=b=="rechts"||b=="rechten seite"||b=="auf der rechten seite";
+ if(ok1&&ok2){m.className="ok";m.textContent="✓ Genau! Das ist der Merksatz.";$("mfull").style.display="block"}
+ else{m.className="bad";m.textContent=(!ok1&&!ok2)?"Noch nicht. Denke an die Waage.":(!ok1?"Die erste Lücke stimmt noch nicht. Denke an die Waage.":"Die zweite Lücke stimmt noch nicht.")}};
 $("go").onclick=apply;$("ck").onclick=check;$("ck2").onclick=check;
 $("undo").onclick=function(){if(hist.length>1){hist.pop();guess=null;cm("");msg("");draw()}};
 $("rst").onclick=function(){var v=V;pick(cur);if(TASKS[cur].own){setV(v);draw()}};
-$("clr").onclick=function(){guess=null;tot=null;$("g").value="";["gx","gy","gg"].forEach(function(k){$(k).value=""});cm("");draw()};
+$("clr2").onclick=$("clr").onclick=function(){guess=null;tot=null;$("g").value="";["gx","gy","gg"].forEach(function(k){$(k).value=""});cm("");draw()};
 ["g","gx","gy","gg"].forEach(function(k){$(k).addEventListener("keydown",function(e){if(e.key=="Enter")check()})});
 pick(0);
 })();
