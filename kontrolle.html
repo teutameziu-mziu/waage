@@ -39,10 +39,31 @@ input[type=number]{width:4.2em;font-size:1.3rem;text-align:center;padding:6px;bo
 .ok{color:var(--ok)}.bad{color:var(--bad)}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 a{color:var(--navy)}
+
+.grp{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.grp+.grp{margin-top:8px}
+.gl{font-weight:700;color:var(--navy);min-width:8.5em}
+.pill{border-radius:999px;font-weight:700;padding:10px 18px}
+.pill[aria-selected=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+@media (prefers-color-scheme:dark){.pill[aria-selected=true]{color:#0f0f10}}
+.big{font-size:1.4rem}
+#cmsg{font-size:1.35rem;min-height:2.6em}
+.lt{font-size:1.3rem;font-weight:700}
+details summary{cursor:pointer;font-weight:700;color:var(--navy);font-size:1.1rem}
+.vb{width:48px;height:48px;border-radius:50%;padding:0;font-weight:700}
+.vb[aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+@media (prefers-color-scheme:dark){.vb[aria-pressed=true]{color:#0f0f10}}
+.steps3{margin:6px 0 0;padding-left:1.3em}.steps3 li{margin:2px 0}
 </style></head><body><main>
-<div class="card tabs" role="tablist" aria-label="Aufgabe wählen" id="tabs"></div>
+<div class="card" id="nav">
+ <div class="grp"><span class="gl">Pakete knacken</span><span class="grp" id="tp"></span></div>
+ <div class="grp"><span class="gl">Übungsheft</span><span class="grp" id="tu"></span></div>
+</div>
 <div class="card"><div><span class="ti" id="ti"></span> <span class="tg" id="tg"></span></div>
- <div class="hint" style="margin-top:6px">✎ Erst im Heft rechnen. Dann hier kontrollieren.</div></div>
+ <ol class="steps3 hint" id="hint" style="margin-top:6px;padding:8px 12px 8px 2em"></ol></div>
+<div class="card" id="own" style="display:none"><h2>Gleichung aus dem Heft eingeben</h2>
+ <div class="row" style="margin-bottom:8px">Buchstabe: <button class="vb" data-v="x" aria-pressed="true">x</button><button class="vb" data-v="y" aria-pressed="false">y</button><button class="vb" data-v="z" aria-pressed="false">z</button></div>
+ <div class="row lt"><input type="number" id="oa" min="0" max="99" value="1" aria-label="Zahl vor dem Buchstaben links"> · <span class="vl">x</span> + <input type="number" id="ob" min="0" max="99" value="3" aria-label="Zahl links"> = <input type="number" id="oc" min="0" max="99" value="0" aria-label="Zahl vor dem Buchstaben rechts"> · <span class="vl">x</span> + <input type="number" id="od" min="0" max="99" value="7" aria-label="Zahl rechts"> <button class="go" id="ob2">Waage bauen</button></div>
+ <div style="opacity:.8;margin-top:6px">Steht kein Buchstabe, schreibe 0. Steht „x“ allein, schreibe 1.</div></div>
 <div class="card"><div id="eq"></div>
 <svg viewBox="0 -10 1000 470" role="img" aria-label="Waage" id="sv">
  <g id="beam"><rect x="190" y="194" width="620" height="12" rx="6" fill="var(--navy)"/></g>
@@ -51,45 +72,48 @@ a{color:var(--navy)}
  <circle cx="500" cy="200" r="22" fill="#e0a33a" stroke="var(--navy)" stroke-width="5"/>
  <g id="pl" class="pan"></g><g id="pr" class="pan"></g>
 </svg></div>
-<div class="card" id="own" style="display:none"><h2>✎ Gleichung aus dem Geheft eingeben</h2>
- <div class="row" style="font-size:1.3rem"><input type="number" id="oa" min="0" max="99" value="1" aria-label="Zahl vor x links"> x + <input type="number" id="ob" min="0" max="99" value="3" aria-label="Zahl links"> = <input type="number" id="oc" min="0" max="99" value="0" aria-label="Zahl vor x rechts"> x + <input type="number" id="od" min="0" max="99" value="7" aria-label="Zahl rechts"> <button class="go" id="ob2">Waage bauen</button></div></div>
-<div class="cols">
- <div class="card"><h2>① Rechne mit der Waage</h2>
-  <div class="ops" id="ops">
+<div class="card"><h2 id="h2c">Prüfe dein Ergebnis</h2>
+  <div class="row big" id="one"><span class="vl">x</span> = <input type="number" id="g" step="any" aria-label="Dein Ergebnis"><span class="kg"> kg</span><button class="go" id="ck">Prüfen</button></div>
+  <div class="row big" id="tot" style="display:none">x = <input type="number" id="gx" step="any" aria-label="Gewicht Paket A"> kg &nbsp; y = <input type="number" id="gy" step="any" aria-label="Gewicht Paket B"> kg<br>Gesamt = <input type="number" id="gg" step="any" aria-label="Gesamtgewicht"> kg <button class="go" id="ck2">Prüfen</button></div>
+  <div id="cmsg" aria-live="polite"></div>
+  <div class="row" style="margin-top:4px"><button id="clr">Neu eintragen</button></div></div>
+<details class="card" id="help"><summary>Hilfe: Rechne Schritt für Schritt mit der Waage</summary>
+  <div class="ops" id="ops" style="margin-top:10px">
    <button class="op" data-o="+" aria-pressed="false">+</button><button class="op" data-o="-" aria-pressed="true">−</button><button class="op" data-o="*" aria-pressed="false">·</button><button class="op" data-o=":" aria-pressed="false">:</button>
    <input type="number" id="n" min="1" max="99" value="1" aria-label="Zahl">
-   <span id="tgt" class="row"><button class="tg2" data-t="x" aria-pressed="false">x</button><button class="tg2" data-t="k" aria-pressed="true">Zahl</button></span>
+   <span id="tgt" class="row"><button class="tg2" data-t="x" aria-pressed="false" id="tgx">1 · x</button><button class="tg2" data-t="k" aria-pressed="true">Zahl</button></span>
   </div>
   <div class="row"><button class="go" id="go">Auf beiden Seiten rechnen</button><button id="undo">↶ Zurück</button><button id="rst">Neu</button></div>
   <div id="msg" aria-live="polite"></div>
-  <div id="steps"></div></div>
- <div class="card"><h2>② Kontrolliere dein Ergebnis</h2>
-  <div class="row"><span>x =</span><input type="number" id="g" min="0" max="99" aria-label="Dein Ergebnis für x"><button class="go" id="ck">Kontrollieren</button></div>
-  <div id="cmsg" aria-live="polite"></div>
-  <div class="row" style="margin-top:8px"><button id="clr">Würfel wieder mit x</button></div>
-  <p style="opacity:.8;margin:10px 0 0">Stimmt es? Dann ist die Waage im Gleichgewicht.</p></div>
-</div>
-<div style="text-align:center;opacity:.8"><a href="./">Zur Einführungs-Waage</a></div>
+  <div id="steps"></div></details>
 </main>
 <script>
 (function(){
 var $=function(i){return document.getElementById(i)};
+var PH=["Rechne zuerst im Heft.","Trage dein Ergebnis ein.","Drücke „Prüfen“. Die Waage zeigt, ob es stimmt."];
+var UH=["Rechne zuerst im Heft.","Trage dein Ergebnis ein.","Drücke „Prüfen“."];
 var TASKS=[
- {t:"Subtrahieren",g:"Einzelarbeit",q:[1,4,0,9]},
- {t:"Dividieren",g:"Einzelarbeit",q:[3,0,0,12]},
- {t:"x subtrahieren",g:"Einzelarbeit",q:[2,0,1,6]},
- {t:"Subtrahieren und Dividieren",g:"Partnerarbeit",q:[2,3,0,11]},
- {t:"x und Zahl subtrahieren",g:"Partnerarbeit",q:[2,1,1,6]},
- {t:"Alle Schritte",g:"Partnerarbeit",q:[3,2,1,8]},
- {t:"Eigene Aufgabe",g:"aus dem Übungsheft",q:[1,3,0,7],own:true}];
-var cur=0,hist=[],op="-",tg="k",guess=null;
+ {t:"Paket A",g:"Paket von Frau Meziu",q:[2,3,0,11],v:"x",kg:1,grp:"p",lab:"Paket A"},
+ {t:"Paket B",g:"Paket der Schwester",q:[3,4,1,14],v:"y",kg:1,grp:"p",lab:"Paket B"},
+ {t:"Gesamtgewicht",g:"Paket A + Paket B",total:1,v:"x",kg:1,grp:"p",lab:"Gesamtgewicht"},
+ {t:"Eigene Gleichung",g:"aus dem Heft",q:[1,3,0,7],own:1,v:"x",grp:"p",lab:"Eigene Gleichung"},
+ {t:"Subtrahieren",g:"Einzelarbeit",q:[1,4,0,9],v:"x",grp:"u"},
+ {t:"Dividieren",g:"Einzelarbeit",q:[3,0,0,12],v:"x",grp:"u"},
+ {t:"x subtrahieren",g:"Einzelarbeit",q:[2,0,1,6],v:"x",grp:"u"},
+ {t:"Subtrahieren und Dividieren",g:"Partnerarbeit",q:[2,3,0,11],v:"x",grp:"u"},
+ {t:"x und Zahl subtrahieren",g:"Partnerarbeit",q:[2,1,1,6],v:"x",grp:"u"},
+ {t:"Alle Schritte",g:"Partnerarbeit",q:[3,2,1,8],v:"x",grp:"u"}];
+var OWN=3;
+var cur=0,hist=[],op="-",tg="k",guess=null,V="x",tot=null;
+function solve(q){return (q[3]-q[1])/(q[0]-q[2])}
+var TA=solve(TASKS[0].q),TB=solve(TASKS[1].q);
 var NS="http://www.w3.org/2000/svg";
 function el(n,a,p){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
-function cof(c,v){return c==1?"x":c+"x"}
-function side(c,k){if(!c&&!k)return"0";var s=[];if(c)s.push(c==1?"x":c+" x");if(k)s.push(String(k));return s.join(" + ")}
+function side(c,k){if(!c&&!k)return"0";var s=[];if(c)s.push(c+" · "+V);if(k)s.push(String(k));return s.join(" + ")}
 function eqs(q){return side(q[0],q[1])+" = "+side(q[2],q[3])}
 function S(){return hist[hist.length-1].q}
-function pan(g,c,k,shown){ // g group, items on plate at y=0 (plate top), pan origin = beam end
+function same(a,b){return Math.abs(a-b)<1e-9}
+function pan(g,c,k,shown){
   g.textContent="";
   el("line",{x1:0,y1:0,x2:-150,y2:165,stroke:"var(--navy)","stroke-width":3},g);
   el("line",{x1:0,y1:0,x2:150,y2:165,stroke:"var(--navy)","stroke-width":3},g);
@@ -97,11 +121,11 @@ function pan(g,c,k,shown){ // g group, items on plate at y=0 (plate top), pan or
   var cw=62,gap=6,x=-170,y=165;
   if(c>5){
     el("rect",{x:x,y:y-cw,width:150,height:cw,rx:7,fill:"var(--blk)",stroke:"var(--blks)","stroke-width":3},g);
-    var tt=el("text",{x:x+75,y:y-cw/2+9,"text-anchor":"middle","font-size":26,"font-weight":700,fill:"#fff"},g);tt.textContent=shown!==null?c+" · "+shown:c+" x";
+    var tt=el("text",{x:x+75,y:y-cw/2+9,"text-anchor":"middle","font-size":26,"font-weight":700,fill:"#fff"},g);tt.textContent=shown!==null?c+" · "+shown:c+" · "+V;
     x+=150+gap;
   }else for(var i=0;i<c;i++){
     el("rect",{x:x,y:y-cw,width:cw,height:cw,rx:7,fill:"var(--blk)",stroke:"var(--blks)","stroke-width":3},g);
-    var t=el("text",{x:x+cw/2,y:y-cw/2+9,"text-anchor":"middle","font-size":shown!==null?26:30,"font-weight":700,fill:"#fff"},g);t.textContent=shown!==null?shown:"x";
+    var t=el("text",{x:x+cw/2,y:y-cw/2+9,"text-anchor":"middle","font-size":shown!==null?26:30,"font-weight":700,fill:"#fff"},g);t.textContent=shown!==null?shown:V;
     x+=cw+gap;
   }
   if(k>24){var r2=26;el("circle",{cx:x+r2+6,cy:y-r2-2,r:r2,fill:"var(--ball)",stroke:"var(--balls)","stroke-width":3},g);
@@ -110,30 +134,49 @@ function pan(g,c,k,shown){ // g group, items on plate at y=0 (plate top), pan or
     for(var j=0;j<k;j++){var cx=bx+(j%cols)*d,cy=y-r-2-Math.floor(j/cols)*d;
       el("circle",{cx:cx,cy:cy,r:r,fill:"var(--ball)",stroke:"var(--balls)","stroke-width":2.5},g);}}
 }
-var tilt=0;
-function draw(){
-  var sh=guess,q=sh!==null?hist[0].q:S();
-  var lv=sh===null?0:q[0]*sh+q[1],rv=sh===null?0:q[2]*sh+q[3];
-  var th=0;if(sh!==null&&lv!==rv){th=Math.max(4,Math.min(10,Math.abs(rv-lv)*1.2));if(rv<lv)th=-th}
+function weights(g,items){ // items: [{txt,ball}]
+  g.textContent="";
+  el("line",{x1:0,y1:0,x2:-150,y2:165,stroke:"var(--navy)","stroke-width":3},g);
+  el("line",{x1:0,y1:0,x2:150,y2:165,stroke:"var(--navy)","stroke-width":3},g);
+  el("polygon",{points:"-185,165 185,165 140,195 -140,195",fill:"var(--navy)"},g);
+  var w=items.length>1?150:200,x=-170,y=165,cw=62;
+  items.forEach(function(it){
+    el("rect",{x:x,y:y-cw,width:w,height:cw,rx:it.ball?31:7,fill:it.ball?"var(--ball)":"var(--blk)",stroke:it.ball?"var(--balls)":"var(--blks)","stroke-width":3},g);
+    var t=el("text",{x:x+w/2,y:y-cw/2+9,"text-anchor":"middle","font-size":26,"font-weight":700,fill:it.ball?"#3a1d10":"#fff"},g);t.textContent=it.txt;
+    x+=w+6;});
+}
+function place(lv,rv,known){
+  var th=0;if(known&&!same(lv,rv)){th=Math.max(4,Math.min(10,Math.abs(rv-lv)*1.2));if(rv<lv)th=-th}
   var rad=th*Math.PI/180,R=310,dx=R*Math.cos(rad),dy=R*Math.sin(rad);
   $("beam").style.transform="rotate("+th+"deg)";
-  pan($("pl"),q[0],q[1],sh);pan($("pr"),q[2],q[3],sh);
   $("pl").style.transform="translate("+(500-dx)+"px,"+(200-dy)+"px)";
   $("pr").style.transform="translate("+(500+dx)+"px,"+(200+dy)+"px)";
+}
+function draw(){
+  var T=TASKS[cur];
+  if(T.total){
+    $("eq").textContent="x + y = Gesamt";
+    if(tot){weights($("pl"),[{txt:"x = "+tot.x},{txt:"y = "+tot.y}]);weights($("pr"),[{txt:tot.G+" kg",ball:1}]);place(tot.x+tot.y,tot.G,true)}
+    else{weights($("pl"),[{txt:"x"},{txt:"y"}]);weights($("pr"),[{txt:"Gesamt",ball:1}]);place(0,0,false)}
+    $("steps").innerHTML="";return}
+  var sh=guess,q=sh!==null?hist[0].q:S();
+  var lv=sh===null?0:q[0]*sh+q[1],rv=sh===null?0:q[2]*sh+q[3];
+  pan($("pl"),q[0],q[1],sh);pan($("pr"),q[2],q[3],sh);
+  place(lv,rv,sh!==null);
   $("eq").textContent=eqs(q);
-  // steps
   var h="";for(var i=0;i<hist.length;i++){h+='<div class="st"><span>'+eqs(hist[i].q)+'</span><b>'+(hist[i+1]?hist[i+1].o:"")+'</b></div>'}
   $("steps").innerHTML=h;
 }
 function msg(t,c){var m=$("msg");m.textContent=t;m.className=c||""}
+function cm(t,c){$("cmsg").textContent=t;$("cmsg").className=c||""}
 function solved(q){return (q[0]==1&&q[1]==0&&q[2]==0)||(q[2]==1&&q[3]==0&&q[0]==0)}
 function apply(){
   var n=parseInt($("n").value,10);if(!(n>=1)){msg("Gib eine Zahl ein.","bad");return}
-  var q=S().slice(),o,lab;
+  var q=S().slice(),lab;
   if(op=="+"||op=="-"){
     var sg=op=="+"?1:-1,i=tg=="x"?[0,2]:[1,3];
     if(sg<0&&(q[i[0]]<n||q[i[1]]<n)){msg("Das geht nicht: Es liegt nicht genug auf beiden Seiten.","bad");return}
-    q[i[0]]+=sg*n;q[i[1]]+=sg*n;lab="| "+(sg<0?"– ":"+ ")+(tg=="x"?(n==1?"x":n+" x"):n);
+    q[i[0]]+=sg*n;q[i[1]]+=sg*n;lab="| "+(sg<0?"- ":"+ ")+(tg=="x"?n+" · "+V:n);
   }else if(op=="*"){
     if(n<2){msg("Mal 1 ändert nichts.","bad");return}
     q=q.map(function(v){return v*n});if(Math.max.apply(null,q)>60){msg("Zu viele Teile. Wähle eine kleinere Zahl.","bad");return}lab="| · "+n;
@@ -142,35 +185,61 @@ function apply(){
     if(q.some(function(v){return v%n})){msg("Das geht nicht auf: Alle Zahlen müssen durch "+n+" teilbar sein.","bad");return}
     q=q.map(function(v){return v/n});lab="| : "+n;
   }
-  guess=null;$("cmsg").textContent="";
+  guess=null;cm("");
   hist.push({q:q,o:lab});draw();
-  if(solved(q)){var v=q[0]==1?q[3]:q[1];msg("Geschafft! x = "+(q[0]==1?q[3]:q[1])+". Stimmt das mit deinem Heft?","ok")}else msg("");
+  if(solved(q)){msg("Geschafft! "+V+" = "+(q[0]==1?q[3]:q[1])+". Stimmt das mit deinem Heft?","ok")}else msg("");
 }
+function tilt(lv,rv){return rv>lv?"Die Waage kippt nach rechts.":"Die Waage kippt nach links."}
 function check(){
+  var T=TASKS[cur];
+  if(T.total){
+    var x=parseFloat($("gx").value.replace(",",".")),y=parseFloat($("gy").value.replace(",",".")),G=parseFloat($("gg").value.replace(",","."));
+    if(isNaN(x)||isNaN(y)||isNaN(G)){cm("Fülle alle drei Felder aus.","bad");return}
+    tot={x:x,y:y,G:G};draw();
+    if(same(x+y,G)){
+      if(!same(x,TA)){cm("✓ Gesamt stimmt: "+x+" + "+y+" = "+G+". Aber dein x passt nicht zu Paket A. Prüfe Paket A noch einmal.","bad")}
+      else if(!same(y,TB)){cm("✓ Gesamt stimmt: "+x+" + "+y+" = "+G+". Aber dein y passt nicht zu Paket B. Prüfe Paket B noch einmal.","bad")}
+      else cm("✓ Gleichgewicht! "+x+" + "+y+" = "+G+". Das Gesamtgewicht stimmt.","ok")}
+    else cm("✗ Links: "+(x+y)+"   Rechts: "+G+". "+tilt(x+y,G)+" Rechne noch einmal.","bad");
+    return}
   var g=parseFloat($("g").value.replace(",","."));var q=hist[0].q;
-  if(isNaN(g)){$("cmsg").textContent="Gib dein x ein.";$("cmsg").className="bad";return}
+  if(isNaN(g)){cm("Gib dein "+V+" ein.","bad");return}
   guess=g;
-    var lv=q[0]*g+q[1],rv=q[2]*g+q[3];
+  var lv=q[0]*g+q[1],rv=q[2]*g+q[3];
   draw();
-  $("cmsg").className=lv==rv?"ok":"bad";
-  $("cmsg").textContent="Links: "+lv+"   Rechts: "+rv+(lv==rv?"  ✓ Gleichgewicht! x = "+g+" stimmt.":"  ✗ Nicht im Gleichgewicht. Rechne noch einmal.");
+  if(same(lv,rv))cm("✓ Gleichgewicht! "+V+" = "+g+" stimmt.","ok");
+  else cm("✗ Links: "+lv+"   Rechts: "+rv+". "+tilt(lv,rv)+" Rechne noch einmal.","bad");
   msg("");
 }
-function pick(i){cur=i;hist=[{q:TASKS[i].q.slice(),o:""}];guess=null;
-  $("own").style.display=TASKS[i].own?"block":"none";$("ti").textContent=(TASKS[i].own?"":"Aufgabe "+(i+1)+": ")+TASKS[i].t;$("tg").textContent="· "+TASKS[i].g;
-  [].forEach.call(document.querySelectorAll(".tab"),function(b,j){b.setAttribute("aria-selected",j==i)});
-  $("cmsg").textContent="";$("g").value="";msg("");draw()}
-TASKS.forEach(function(t,i){var b=document.createElement("button");b.className="tab";b.setAttribute("role","tab");b.textContent=t.own?"✎":i+1;b.onclick=function(){pick(i)};$("tabs").appendChild(b)});
+function setV(v){V=v;[].forEach.call(document.querySelectorAll(".vl"),function(e){e.textContent=v});$("tgx").textContent="1 · "+v}
+function pick(i){cur=i;var T=TASKS[i];tot=null;guess=null;
+  if(T.q)hist=[{q:T.q.slice(),o:""}];
+  setV(T.own?V:T.v);if(!T.own&&T.v!==V)setV(T.v);
+  document.querySelectorAll(".vb").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.v==V)});
+  $("own").style.display=T.own?"block":"none";
+  $("one").style.display=T.total?"none":"flex";$("tot").style.display=T.total?"block":"none";
+  document.querySelectorAll(".kg").forEach(function(e){e.style.display=T.kg?"inline":"none"});
+  $("help").style.display=T.total?"none":"block";$("help").open=!(T.grp=="p"&&!T.own);
+  $("ti").textContent=T.grp=="p"?T.t:"Aufgabe "+(i-OWN)+": "+T.t;$("tg").textContent="· "+T.g;
+  $("hint").innerHTML=(T.grp=="p"?PH:UH).map(function(x){return"<li>"+x+"</li>"}).join("");
+  $("h2c").textContent=T.total?"Prüfe euer Gesamtgewicht":"Prüfe dein Ergebnis";
+  document.querySelectorAll("#nav button").forEach(function(b){b.setAttribute("aria-selected",+b.dataset.i==i)});
+  cm("");msg("");$("g").value="";["gx","gy","gg"].forEach(function(k){$(k).value=""});draw()}
+TASKS.forEach(function(t,i){var b=document.createElement("button");b.dataset.i=i;b.setAttribute("role","tab");
+  if(t.grp=="p"){b.className="pill";b.textContent=t.lab;b.onclick=function(){pick(i)};$("tp").appendChild(b)}
+  else{b.className="tab";b.textContent=i-OWN;b.onclick=function(){pick(i)};$("tu").appendChild(b)}});
+var pen=document.createElement("button");pen.className="tab";pen.dataset.i=OWN;pen.setAttribute("role","tab");pen.textContent="✎";pen.setAttribute("aria-label","Eigene Gleichung");pen.onclick=function(){pick(OWN)};$("tu").appendChild(pen);
 [].forEach.call(document.querySelectorAll("#ops .op"),function(b){b.onclick=function(){op=b.dataset.o;[].forEach.call(document.querySelectorAll("#ops .op"),function(x){x.setAttribute("aria-pressed",x==b)});$("tgt").style.display=(op=="+"||op=="-")?"flex":"none"}});
 [].forEach.call(document.querySelectorAll(".tg2"),function(b){b.onclick=function(){tg=b.dataset.t;[].forEach.call(document.querySelectorAll(".tg2"),function(x){x.setAttribute("aria-pressed",x==b)})}});
+[].forEach.call(document.querySelectorAll(".vb"),function(b){b.onclick=function(){setV(b.dataset.v);document.querySelectorAll(".vb").forEach(function(x){x.setAttribute("aria-pressed",x==b)});draw()}});
 $("ob2").onclick=function(){var v=["oa","ob","oc","od"].map(function(i){return parseInt($(i).value,10)});
  if(v.some(function(x){return !(x>=0&&x<=99)})||v[0]+v[2]<1){msg("Gib vier Zahlen von 0 bis 99 ein.","bad");return}
- hist=[{q:v,o:""}];guess=null;$("cmsg").textContent="";msg("");draw()};
-$("go").onclick=apply;$("ck").onclick=check;
-$("undo").onclick=function(){if(hist.length>1){hist.pop();guess=null;$("cmsg").textContent="";msg("");draw()}};
-$("rst").onclick=function(){pick(cur)};
-$("clr").onclick=function(){guess=null;$("cmsg").textContent="";draw()};
-$("g").addEventListener("keydown",function(e){if(e.key=="Enter")check()});
+ hist=[{q:v,o:""}];guess=null;cm("");msg("");draw()};
+$("go").onclick=apply;$("ck").onclick=check;$("ck2").onclick=check;
+$("undo").onclick=function(){if(hist.length>1){hist.pop();guess=null;cm("");msg("");draw()}};
+$("rst").onclick=function(){var v=V;pick(cur);if(TASKS[cur].own){setV(v);draw()}};
+$("clr").onclick=function(){guess=null;tot=null;$("g").value="";["gx","gy","gg"].forEach(function(k){$(k).value=""});cm("");draw()};
+["g","gx","gy","gg"].forEach(function(k){$(k).addEventListener("keydown",function(e){if(e.key=="Enter")check()})});
 pick(0);
 })();
 </script></body></html>
