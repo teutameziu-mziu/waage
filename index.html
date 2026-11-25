@@ -98,7 +98,7 @@ button.pill.cur.done{color:#fff;background:var(--ok);border-color:var(--ok)}
 .ht .hc b{font-weight:600;font-size:clamp(.85rem,1.9vh,1.05rem)}
 .ht .arr{text-align:center;font-size:1.3rem;color:var(--accent);line-height:1}
 .ht svg.mini{display:block;width:100%;max-width:clamp(150px,30vh,270px);height:auto;aspect-ratio:1000/215;margin:2px auto;flex:none;min-height:0}
-.rb{display:grid;grid-template-columns:max-content max-content 1fr;column-gap:6px;align-items:center;font-size:clamp(.9rem,2.1vh,1.12rem);font-variant-numeric:tabular-nums;line-height:1.35;white-space:nowrap}
+.rb{display:grid;grid-template-columns:max-content max-content 1fr;column-gap:6px;align-items:center;font-size:clamp(.8rem,1.85vh,.98rem);font-variant-numeric:tabular-nums;line-height:1.35;white-space:nowrap}
 .rb .l{text-align:right}
 .rw{color:var(--bad);font-weight:700}
 .rb .o{color:var(--bad);font-weight:700;padding-left:2px;font-size:.95em}
@@ -131,6 +131,7 @@ svg.mini{flex:none;height:auto;min-height:0;margin:4px 0}
 <main>
 <div class="card row" role="tablist" aria-label="Aufgabe wählen">
   <strong>Einführung</strong>
+  <button class="tab" role="tab" id="t7" aria-selected="false">Vorwissen</button>
   <button class="tab" role="tab" id="t1" aria-selected="true">Ablesen</button>
   <button class="tab" role="tab" id="t2" aria-selected="false">Aufgabe 2</button>
   <button class="tab" role="tab" id="t3" aria-selected="false">Aufgabe 3</button>
@@ -145,7 +146,7 @@ svg.mini{flex:none;height:auto;min-height:0;margin:4px 0}
   <div class="card scale">
     <div id="eq"></div>
     <div id="eqin" class="gone"><div class="eqrow"><span class="lab">Deine Gleichung:</span>
-      <input type="number" class="ei" id="e1" min="0" max="20" aria-label="Würfel links"><span class="v">x +</span><input type="number" class="ei" id="e2" min="0" max="60" aria-label="Kugeln links"><span class="v">=</span><input type="number" class="ei" id="e3" min="0" max="20" aria-label="Würfel rechts"><span class="v">x +</span><input type="number" class="ei" id="e4" min="0" max="60" aria-label="Kugeln rechts">
+      <input type="number" class="ei" id="e1" min="0" max="20" aria-label="Würfel links"><span class="v">· x +</span><input type="number" class="ei" id="e2" min="0" max="60" aria-label="Kugeln links"><span class="v">=</span><input type="number" class="ei" id="e3" min="0" max="20" aria-label="Würfel rechts"><span class="v">· x +</span><input type="number" class="ei" id="e4" min="0" max="60" aria-label="Kugeln rechts">
       <button class="p" id="eqchk">Gleichung prüfen</button></div><div id="eqmsg"></div></div>
     <svg viewBox="0 -25 1000 480" role="img" aria-label="Waage mit Würfeln und Kugeln">
       <g id="beam"><rect x="30" y="195" width="940" height="12" rx="6" fill="var(--beam)"/><g id="items"></g></g>
@@ -159,7 +160,7 @@ svg.mini{flex:none;height:auto;min-height:0;margin:4px 0}
     <div class="rwh">Rechenweg</div>
     <div id="steps"></div>
     <div id="stock"></div>
-    <div class="row"><button id="undo">↶ Zurück</button><button id="newb">Neu</button><button id="cnt" class="gone">Zählhilfe zeigen</button><button id="hidr" class="gone">Rechnung verdecken</button><button id="probe" class="gone">Probe zeigen</button><button id="merke" class="gone">Merke zeigen</button></div>
+    <div class="row"><button id="undo">↶ Zurück</button><button id="newb">Neu</button><button id="cnt" class="gone">Zählhilfe zeigen</button><button id="hidr" class="gone">Rechnung verdecken</button><button id="probe" class="gone">Probe zeigen</button><button id="merke" class="gone">Merke zeigen</button><button id="tohe" class="p gone">Weiter zum Hefteintrag →</button></div>
   </div>
 </div>
 
@@ -197,6 +198,7 @@ svg.mini{flex:none;height:auto;min-height:0;margin:4px 0}
 (function(){
 var $=function(i){return document.getElementById(i)};
 var EX=[[1,2,0,5,3],[2,1,0,7,3],[3,2,1,8,3],[0,4,1,1,3],[2,3,1,7,4]],exi=0,showCnt=false;
+var PV=[[1,2,0,5,3],[2,1,0,7,3],[4,2,1,8,2]],pool=EX;
 var CFG={
  1:{L:[0,0],R:[0,0],w:3,total:null,text:'<b>Einführung</b> Die Waage ist im Gleichgewicht. Ein Würfel hat ein unbekanntes Gewicht x, eine Kugel wiegt 1. Wie viele Würfel und wie viele Kugeln liegen links, wie viele rechts? Trage die Gleichung oben ein. Finde dann heraus, wie viele Kugeln ein Würfel wiegt, und trage die Zahl ein.<br><span class="hf">✎ Übungsheft: Schreibe die Gleichung und deine Rechnung in dein Übungsheft.</span>'},
  2:{L:[3,2],R:[1,8],w:3,total:null,text:'<b>Aufgabe 2</b> a) Leere die Waagschalen gleichmäßig, bis links nur noch ein Würfel und keine Kugel liegt. b) Wie viele Kugeln wiegen so viel wie ein Würfel? Erkläre, wie du die Lösung gefunden hast. c) Schreibe zu jedem Schritt eine Gleichung mit Umformung.<br><span class="hf">✎ Übungsheft: Schreibe deine Gleichungen und deine Erklärung in dein Übungsheft.</span>'},
@@ -211,24 +213,25 @@ function init(m){
   mode=m;var c=CFG[m];
   $('eqin').classList.toggle('gone',m!==1);['e1','e2','e3','e4'].forEach(function(id){$(id).value=''});$('eqmsg').textContent='';$('eqmsg').className='';
   ['task','mid','ctl','tg'].forEach(function(id){$(id).classList.toggle('gone',m===6)});$('rk').classList.toggle('gone',m!==6);
-  if(m===6){document.documentElement.classList.remove('ov');['t1','t2','t3','t4','t6','t5'].forEach(function(id){$(id).setAttribute('aria-selected',String(id==='t6'))});rkDraw();return}
+  if(m===6){document.documentElement.classList.remove('ov');['t1','t2','t3','t4','t6','t5'].forEach(function(id){$(id).setAttribute('aria-selected',String(id==='t6'))});$('t7').setAttribute('aria-selected','false');rkDraw();return}
   $('ops').classList.toggle('gone',m===1);$('cnt').classList.toggle('gone',m!==1);
   $('undo').textContent='↶ Zurück';$('newb').textContent='Neu';$('rw').firstElementChild.textContent=m===5?'7. So löst du Gleichungen mit der Äquivalenzumformung':'Rechenweg';
   $('mid').classList.toggle('m5',m===5);document.documentElement.classList.remove('ov');rechHid=false;probeOn=false;merkeOn=false;
-  ['hidr','probe','merke'].forEach(function(id){$(id).classList.toggle('gone',m!==5)});$('hidr').textContent='Rechnung verdecken';
+  ['hidr','probe','merke'].forEach(function(id){$(id).classList.toggle('gone',m!==5)});$('tohe').classList.add('gone');$('hidr').textContent='Rechnung verdecken';
   $('ops').classList.toggle('gone',m===5);$('m5ctl').classList.toggle('gone',m!==5);op5='';ob5='';Array.prototype.forEach.call(document.querySelectorAll('.op,.ob'),function(b){b.classList.remove('sel')});
   S={L:{x:c.L[0],k:c.L[1]},R:{x:c.R[0],k:c.R[1]}};
   w=c.w;
-  if(m===1){var e=EX[exi];S={L:{x:e[0],k:e[1]},R:{x:e[2],k:e[3]}};w=e[4];eqHid=true;showCnt=false}else{eqHid=false}
+  if(m===1){var e=pool[exi];S={L:{x:e[0],k:e[1]},R:{x:e[2],k:e[3]}};w=e[4];eqHid=true;showCnt=false}else{eqHid=false}
   $('tg').textContent=eqHid?'Gleichung zeigen':'Gleichung ausblenden';rev=false;hidW=(m!==4);
   H=[{s:snap(),op:'',warn:false}];
   ['t1','t2','t3','t4','t6','t5'].forEach(function(id){$(id).setAttribute('aria-selected',String(id==='t'+m))});
-  $('task').innerHTML=c.text;$('msg').textContent='';$('msg').className='';$('ans').value='';
+  $('t7').setAttribute('aria-selected',String(m===1&&pool===PV));if(m===1&&pool===PV)$('t1').setAttribute('aria-selected','false');
+  $('task').innerHTML=(m===1&&pool===PV)?'<b>Vorwissen</b> Wie heißt die Gleichung? Lies an der Waage ab und nenne die Gleichung. Der Würfel ist x, die Kugel ist 1. Die letzte Waage kennst du aus deinem Hefteintrag.':c.text;$('msg').textContent='';$('msg').className='';$('ans').value='';
   if(m===4)$('wset').value=3;
   draw(true);
 }
 function bal(){return (S.L.x-S.R.x)*w+(S.L.k-S.R.k)}
-function term(a,b){var p=[];if(a>0)p.push((a===1?'':a)+'x');if(b>0)p.push(b);return p.length?p.join(' + '):'0'}
+function term(a,b){var p=[];if(a>0)p.push(a+' · x');if(b>0)p.push(b);return p.length?p.join(' + '):'0'}
 function eqOf(s,eq){return term(s.L.x,s.L.k)+(eq?' = ':' <span class="ne">≠</span> ')+term(s.R.x,s.R.k)}
 function balOf(s){return (s.L.x-s.R.x)*w+(s.L.k-s.R.k)===0}
 function side(a,b,x0,lab){
@@ -286,7 +289,7 @@ function tafel(){
       var cls='',nt,o1,l2L,l2R;
       if(d.div){hand='Jede Seite in '+d.div+' gleiche Teile teilen. Nur 1 Teil bleibt liegen.';o1='| : '+d.div;nt='(auf beiden Seiten : '+d.div+')';l2L=wrapT(L)+' <span class="rw">: '+d.div+'</span>';l2R=wrapT(R)+' <span class="rw">: '+d.div+'</span>'}
       else if(d.mul){hand='Links und rechts alles '+d.mul+'-mal hinlegen.';o1='| · '+d.mul;nt='(auf beiden Seiten · '+d.mul+')';l2L=wrapT(L)+' <span class="rw">· '+d.mul+'</span>';l2R=wrapT(R)+' <span class="rw">· '+d.mul+'</span>'}
-      else{var sg=d.g>0?'+':'−',nm=d.t==='x'?(d.k===1?'x':d.k+'x'):String(d.k);
+      else{var sg=d.g>0?'+':'−',nm=d.t==='x'?(d.k+' · x'):String(d.k);
         hand='Links und rechts je '+(d.t==='x'?(d.k===1?'1 Würfel':d.k+' Würfel'):(d.k===1?'1 Kugel':d.k+' Kugeln'))+(d.g>0?' dazulegen':' wegnehmen');
         cls=d.t==='x'?'hw':'hk';o1='| '+sg+' '+nm;nt='(auf beiden Seiten '+sg+' '+nm+')';l2L=L+' <span class="rw">'+sg+' '+nm+'</span>';l2R=R+' <span class="rw">'+sg+' '+nm+'</span>'}
       hand='<span class="'+cls+'">'+hand+'</span>';
@@ -316,10 +319,10 @@ function tafel(){
 function introPanel(){
   $('ops').classList.add('gone');$('wrow1').classList.remove('gone');$('wrow4').classList.add('gone');$('wrow5').classList.add('gone');$('cnt').classList.remove('gone');
   $('undo').textContent='← Vorherige';$('newb').textContent='Nächste Waage →';$('cnt').textContent=showCnt?'Zählhilfe ausblenden':'Zählhilfe zeigen';
-  $('rw').firstElementChild.textContent='So liest du die Waage';
+  $('rw').firstElementChild.textContent=pool===PV?'Wie heißt die Gleichung?':'So liest du die Waage';$('tohe').classList.toggle('gone',pool!==PV);
   var h='<div class="st"><span>Würfel = x (unbekannt)</span></div><div class="st"><span>Kugel = 1</span></div><div class="st"><span>Links und rechts gleich schwer: =</span></div>';
   if(showCnt)h+='<div class="st last"><span>Links: '+S.L.x+' Würfel, '+S.L.k+' Kugeln</span></div><div class="st last"><span>Rechts: '+S.R.x+' Würfel, '+S.R.k+' Kugeln</span></div>';
-  h+='<div class="st"><span>Waage '+(exi+1)+' von '+EX.length+'</span></div>';
+  h+='<div class="st"><span>Waage '+(exi+1)+' von '+pool.length+'</span></div>';
   $('steps').innerHTML=h;
 }
 function n(){var v=parseInt($('n').value,10);if(isNaN(v)||v<1)v=1;if(v>10)v=10;return v}
@@ -331,7 +334,7 @@ function act(sd,t,g){
     if(v>cap){say('Auf eine Waagschale passen höchstens '+cap+(t==='x'?' Würfel.':' Kugeln.'),true);return}}
   var sv=used();
   if(sv&&g>0&&sv[t]<k*sides.length){say('Dafür sind nicht genug '+(t==='x'?'Würfel':'Kugeln')+' übrig.',true);return}
-  var nm=t==='x'?(k===1?'x':k+'x'):String(k),sg=g>0?'+':'−',op;
+  var nm=t==='x'?(k+' · x'):String(k),sg=g>0?'+':'−',op;
   sides.forEach(function(s){S[s][t]+=g*k});
   if(sd==='B')op='| '+sg+' '+nm;else op=(sd==='L'?'nur links ':'nur rechts ')+sg+' '+nm;
   H[H.length-1].op=op;H[H.length-1].warn=(sd!=='B');H[H.length-1].det={sd:sd,t:t,g:g,k:k};
@@ -422,13 +425,15 @@ Array.prototype.forEach.call(document.querySelectorAll('.ei'),function(el){el.ad
 function undo(){if(H.length>1){H.pop();S=JSON.parse(JSON.stringify(H[H.length-1].s));H[H.length-1].op='';H[H.length-1].warn=false;H[H.length-1].det=null;say('');draw()}}
 Array.prototype.forEach.call(document.querySelectorAll('button[data-s]'),function(b){b.onclick=function(){act(b.getAttribute('data-s'),b.getAttribute('data-t'),parseInt(b.getAttribute('data-g'),10))}});
 $('div').onclick=divide;
-$('undo').onclick=function(){if(mode===1){exi=(exi+EX.length-1)%EX.length;init(1)}else undo()};
-$('newb').onclick=function(){if(mode===1){exi=(exi+1)%EX.length;init(1)}else init(mode)};
+$('undo').onclick=function(){if(mode===1){exi=(exi+pool.length-1)%pool.length;init(1)}else undo()};
+$('newb').onclick=function(){if(mode===1){exi=(exi+1)%pool.length;init(1)}else init(mode)};
 $('cnt').onclick=function(){showCnt=!showCnt;draw(true)};
 $('hidr').onclick=function(){rechHid=!rechHid;draw(true)};
 $('probe').onclick=function(){probeOn=!probeOn;draw(true)};
 $('merke').onclick=function(){merkeOn=!merkeOn;draw(true)};
-['t1','t2','t3','t4','t6','t5'].forEach(function(id){$(id).onclick=function(){init(parseInt(id.slice(1),10))}});
+['t1','t2','t3','t4','t6','t5'].forEach(function(id){$(id).onclick=function(){if(id==='t1'&&pool!==EX){pool=EX;exi=0}init(parseInt(id.slice(1),10))}});
+$('t7').onclick=function(){pool=PV;exi=0;init(1)};
+$('tohe').onclick=function(){init(5)};
 $('tg').onclick=function(){eqHid=!eqHid;$('tg').textContent=eqHid?'Gleichung einblenden':'Gleichung ausblenden';draw(true)};
 function chk(){var v=parseFloat($('ans').value.replace(',','.'));
   if(isNaN(v)){say('Bitte eine Zahl eintragen.',true);return}
