@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Waage – Kontrolle</title>
+<style>
+:root{--bg:#f6f7f9;--fg:#1b1d21;--card:#fff;--line:#d5d9e0;--navy:#1f3a5f;--blk:#5b9bd5;--blks:#1f4e79;--ball:#e3a283;--balls:#8a4f36;--ok:#1a7f3c;--bad:#b3261e;--op:#c0392b;--soft:#eef2f7}
+@media (prefers-color-scheme:dark){:root{--bg:#0f0f10;--fg:#eceef2;--card:#1a1b1e;--line:#33353b;--navy:#9db8de;--ok:#58d17c;--bad:#ff8a80;--op:#ff8a80;--soft:#232a36}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Grundschrift","Comic Sans MS","Comic Neue",system-ui,sans-serif;font-size:18px;padding:10px max(12px,env(safe-area-inset-left))}
+main{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+button,input{font:inherit}
+button{border:2px solid var(--line);background:var(--card);color:var(--fg);border-radius:10px;padding:8px 16px;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid #2563c9;outline-offset:2px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tab{width:52px;height:52px;font-size:1.4rem;font-weight:700;padding:0;border-radius:50%}
+.tab[aria-selected=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+@media (prefers-color-scheme:dark){.tab[aria-selected=true]{color:#0f0f10}}
+.ti{font-size:1.25rem;font-weight:700;color:var(--navy)}.tg{opacity:.75}
+.hint{background:var(--soft);border-radius:10px;padding:8px 12px}
+#eq{font-size:clamp(1.8rem,6vw,2.8rem);font-weight:700;text-align:center;font-variant-numeric:tabular-nums}
+svg{width:100%;height:auto;display:block;max-height:46vh}
+#beam,.pan{transition:transform 1s cubic-bezier(.3,1.4,.5,1)}
+#beam{transform-box:view-box;transform-origin:500px 200px}
+@media (prefers-reduced-motion:reduce){#beam,.pan{transition:none}}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:760px){.cols{grid-template-columns:1fr}}
+h2{font-size:1.15rem;margin:0 0 8px;color:var(--navy)}
+.ops{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+.op{width:56px;font-size:1.5rem;font-weight:700}
+.op[aria-pressed=true],.tg2[aria-pressed=true]{background:var(--op);color:#fff;border-color:var(--op)}
+input[type=number]{width:4.2em;font-size:1.3rem;text-align:center;padding:6px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg)}
+.go{background:var(--navy);color:#fff;border-color:var(--navy);font-weight:700}
+@media (prefers-color-scheme:dark){.go{color:#0f0f10}}
+#steps{margin-top:8px;font-size:1.3rem;font-variant-numeric:tabular-nums}
+.st{display:flex;justify-content:space-between;gap:12px;padding:3px 0;border-bottom:1px dashed var(--line)}
+.st b{color:var(--op)}
+#msg,#cmsg{min-height:1.4em;font-weight:700;margin-top:6px}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+a{color:var(--navy)}
+</style></head><body><main>
+<div class="card tabs" role="tablist" aria-label="Aufgabe wählen" id="tabs"></div>
+<div class="card"><div><span class="ti" id="ti"></span> <span class="tg" id="tg"></span></div>
+ <div class="hint" style="margin-top:6px">✎ Erst im Heft rechnen. Dann hier kontrollieren.</div></div>
+<div class="card"><div id="eq"></div>
+<svg viewBox="0 -10 1000 470" role="img" aria-label="Waage" id="sv">
+ <g id="beam"><rect x="190" y="194" width="620" height="12" rx="6" fill="var(--navy)"/></g>
+ <polygon points="500,215 440,430 560,430" fill="var(--navy)" opacity=".85"/>
+ <rect x="350" y="430" width="300" height="24" rx="8" fill="var(--navy)"/>
+ <circle cx="500" cy="200" r="22" fill="#e0a33a" stroke="var(--navy)" stroke-width="5"/>
+ <g id="pl" class="pan"></g><g id="pr" class="pan"></g>
+</svg></div>
+<div class="cols">
+ <div class="card"><h2>① Rechne mit der Waage</h2>
+  <div class="ops" id="ops">
+   <button class="op" data-o="+" aria-pressed="false">+</button><button class="op" data-o="-" aria-pressed="true">−</button><button class="op" data-o="*" aria-pressed="false">·</button><button class="op" data-o=":" aria-pressed="false">:</button>
+   <input type="number" id="n" min="1" max="12" value="1" aria-label="Zahl">
+   <span id="tgt" class="row"><button class="tg2" data-t="x" aria-pressed="false">x</button><button class="tg2" data-t="k" aria-pressed="true">Zahl</button></span>
+  </div>
+  <div class="row"><button class="go" id="go">Auf beiden Seiten rechnen</button><button id="undo">↶ Zurück</button><button id="rst">Neu</button></div>
+  <div id="msg" aria-live="polite"></div>
+  <div id="steps"></div></div>
+ <div class="card"><h2>② Kontrolliere dein Ergebnis</h2>
+  <div class="row"><span>x =</span><input type="number" id="g" min="0" max="99" aria-label="Dein Ergebnis für x"><button class="go" id="ck">Kontrollieren</button></div>
+  <div id="cmsg" aria-live="polite"></div>
+  <div class="row" style="margin-top:8px"><button id="clr">Würfel wieder mit x</button></div>
+  <p style="opacity:.8;margin:10px 0 0">Stimmt es? Dann ist die Waage im Gleichgewicht.</p></div>
+</div>
+<div style="text-align:center;opacity:.8"><a href="./">Zur Einführungs-Waage</a></div>
+</main>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var TASKS=[
+ {t:"Subtrahieren",g:"Einzelarbeit",q:[1,4,0,9]},
+ {t:"Dividieren",g:"Einzelarbeit",q:[3,0,0,12]},
+ {t:"x subtrahieren",g:"Einzelarbeit",q:[2,0,1,6]},
+ {t:"Subtrahieren und Dividieren",g:"Partnerarbeit",q:[2,3,0,11]},
+ {t:"x und Zahl subtrahieren",g:"Partnerarbeit",q:[2,1,1,6]},
+ {t:"Alle Schritte",g:"Partnerarbeit",q:[3,2,1,8]}];
+var cur=0,hist=[],op="-",tg="k",guess=null;
+var NS="http://www.w3.org/2000/svg";
+function el(n,a,p){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
+function cof(c,v){return c==1?"x":c+"x"}
+function side(c,k){if(!c&&!k)return"0";var s=[];if(c)s.push(c==1?"x":c+" x");if(k)s.push(String(k));return s.join(" + ")}
+function eqs(q){return side(q[0],q[1])+" = "+side(q[2],q[3])}
+function S(){return hist[hist.length-1].q}
+function pan(g,c,k,shown){ // g group, items on plate at y=0 (plate top), pan origin = beam end
+  g.textContent="";
+  el("line",{x1:0,y1:0,x2:-150,y2:165,stroke:"var(--navy)","stroke-width":3},g);
+  el("line",{x1:0,y1:0,x2:150,y2:165,stroke:"var(--navy)","stroke-width":3},g);
+  el("polygon",{points:"-185,165 185,165 140,195 -140,195",fill:"var(--navy)"},g);
+  var cw=62,gap=6,x=-170,y=165;
+  for(var i=0;i<c;i++){
+    el("rect",{x:x,y:y-cw,width:cw,height:cw,rx:7,fill:"var(--blk)",stroke:"var(--blks)","stroke-width":3},g);
+    var t=el("text",{x:x+cw/2,y:y-cw/2+9,"text-anchor":"middle","font-size":shown!==null?26:30,"font-weight":700,fill:"#fff"},g);t.textContent=shown!==null?shown:"x";
+    x+=cw+gap;
+  }
+  if(k){var r=12,d=28,avail=170-x,cols=Math.max(1,Math.floor(avail/d)),bx=x+r+4;
+    for(var j=0;j<k;j++){var cx=bx+(j%cols)*d,cy=y-r-2-Math.floor(j/cols)*d;
+      el("circle",{cx:cx,cy:cy,r:r,fill:"var(--ball)",stroke:"var(--balls)","stroke-width":2.5},g);}}
+}
+var tilt=0;
+function draw(){
+  var sh=guess,q=sh!==null?hist[0].q:S();
+  var lv=sh===null?0:q[0]*sh+q[1],rv=sh===null?0:q[2]*sh+q[3];
+  var th=0;if(sh!==null&&lv!==rv){th=Math.max(4,Math.min(10,Math.abs(rv-lv)*1.2));if(rv<lv)th=-th}
+  var rad=th*Math.PI/180,R=310,dx=R*Math.cos(rad),dy=R*Math.sin(rad);
+  $("beam").style.transform="rotate("+th+"deg)";
+  pan($("pl"),q[0],q[1],sh);pan($("pr"),q[2],q[3],sh);
+  $("pl").style.transform="translate("+(500-dx)+"px,"+(200-dy)+"px)";
+  $("pr").style.transform="translate("+(500+dx)+"px,"+(200+dy)+"px)";
+  $("eq").textContent=eqs(q);
+  // steps
+  var h="";for(var i=0;i<hist.length;i++){h+='<div class="st"><span>'+eqs(hist[i].q)+'</span><b>'+(hist[i+1]?hist[i+1].o:"")+'</b></div>'}
+  $("steps").innerHTML=h;
+}
+function msg(t,c){var m=$("msg");m.textContent=t;m.className=c||""}
+function solved(q){return (q[0]==1&&q[1]==0&&q[2]==0)||(q[2]==1&&q[3]==0&&q[0]==0)}
+function apply(){
+  var n=parseInt($("n").value,10);if(!(n>=1)){msg("Gib eine Zahl ein.","bad");return}
+  var q=S().slice(),o,lab;
+  if(op=="+"||op=="-"){
+    var sg=op=="+"?1:-1,i=tg=="x"?[0,2]:[1,3];
+    if(sg<0&&(q[i[0]]<n||q[i[1]]<n)){msg("Das geht nicht: Es liegt nicht genug auf beiden Seiten.","bad");return}
+    q[i[0]]+=sg*n;q[i[1]]+=sg*n;lab="| "+(sg<0?"– ":"+ ")+(tg=="x"?(n==1?"x":n+" x"):n);
+  }else if(op=="*"){
+    if(n<2){msg("Mal 1 ändert nichts.","bad");return}
+    q=q.map(function(v){return v*n});if(Math.max.apply(null,q)>60){msg("Zu viele Teile. Wähle eine kleinere Zahl.","bad");return}lab="| · "+n;
+  }else{
+    if(n<2){msg("Durch 1 ändert nichts.","bad");return}
+    if(q.some(function(v){return v%n})){msg("Das geht nicht auf: Alle Zahlen müssen durch "+n+" teilbar sein.","bad");return}
+    q=q.map(function(v){return v/n});lab="| : "+n;
+  }
+  guess=null;$("cmsg").textContent="";
+  hist.push({q:q,o:lab});draw();
+  if(solved(q)){var v=q[0]==1?q[3]:q[1];msg("Geschafft! x = "+(q[0]==1?q[3]:q[1])+". Stimmt das mit deinem Heft?","ok")}else msg("");
+}
+function check(){
+  var g=parseFloat($("g").value.replace(",","."));var q=hist[0].q;
+  if(isNaN(g)){$("cmsg").textContent="Gib dein x ein.";$("cmsg").className="bad";return}
+  guess=g;
+    var lv=q[0]*g+q[1],rv=q[2]*g+q[3];
+  draw();
+  $("cmsg").className=lv==rv?"ok":"bad";
+  $("cmsg").textContent="Links: "+lv+"   Rechts: "+rv+(lv==rv?"  ✓ Gleichgewicht! x = "+g+" stimmt.":"  ✗ Nicht im Gleichgewicht. Rechne noch einmal.");
+  msg("");
+}
+function pick(i){cur=i;hist=[{q:TASKS[i].q.slice(),o:""}];guess=null;
+  $("ti").textContent="Aufgabe "+(i+1)+": "+TASKS[i].t;$("tg").textContent="· "+TASKS[i].g;
+  [].forEach.call(document.querySelectorAll(".tab"),function(b,j){b.setAttribute("aria-selected",j==i)});
+  $("cmsg").textContent="";$("g").value="";msg("");draw()}
+TASKS.forEach(function(t,i){var b=document.createElement("button");b.className="tab";b.setAttribute("role","tab");b.textContent=i+1;b.onclick=function(){pick(i)};$("tabs").appendChild(b)});
+[].forEach.call(document.querySelectorAll("#ops .op"),function(b){b.onclick=function(){op=b.dataset.o;[].forEach.call(document.querySelectorAll("#ops .op"),function(x){x.setAttribute("aria-pressed",x==b)});$("tgt").style.display=(op=="+"||op=="-")?"flex":"none"}});
+[].forEach.call(document.querySelectorAll(".tg2"),function(b){b.onclick=function(){tg=b.dataset.t;[].forEach.call(document.querySelectorAll(".tg2"),function(x){x.setAttribute("aria-pressed",x==b)})}});
+$("go").onclick=apply;$("ck").onclick=check;
+$("undo").onclick=function(){if(hist.length>1){hist.pop();guess=null;$("cmsg").textContent="";msg("");draw()}};
+$("rst").onclick=function(){pick(cur)};
+$("clr").onclick=function(){guess=null;$("cmsg").textContent="";draw()};
+$("g").addEventListener("keydown",function(e){if(e.key=="Enter")check()});
+pick(0);
+})();
+</script></body></html>
