@@ -57,6 +57,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--navy);font-size:1.1re
 #right{display:flex;flex-direction:column;gap:10px;min-width:0}
 @media (min-width:900px){#hd{display:flex;gap:16px;align-items:center;flex-wrap:wrap}#hd ol{margin:0!important;padding:4px 10px 4px 24px!important;flex:1}.tab{width:40px;height:40px;font-size:1.1rem}.pill{padding:5px 12px;font-size:.95rem}.gl{min-width:0}#cmsg{font-size:1.15rem;min-height:1.6em}#nav details{display:inline-block;margin:0 0 0 14px}.card h2{margin:0 0 4px}.stage{gap:8px}#left{display:flex;flex-direction:column;gap:8px}.stage{grid-template-columns:1.25fr 1fr;align-items:start}svg{max-height:31vh}#hd ol{font-size:.92rem}#hd{padding:4px 12px}#nav{display:flex;flex-wrap:wrap;align-items:center;padding:6px 12px}#nav .grp+details,#nav details{margin:0 0 0 12px}.vq{font-size:1rem;gap:6px}.vq input[type=text]{width:8em;font-size:1rem;padding:4px}#merke h2{display:none}#mmsg,#vmsg{min-height:1.2em;font-size:1.05rem}#eq{font-size:clamp(1.5rem,4vh,2.2rem)}.gl{font-size:.95rem}body{font-size:17px}main{gap:8px}.card{padding:8px 12px}#eq{font-size:clamp(1.6rem,4.5vh,2.4rem)}.steps3{display:flex;gap:18px;flex-wrap:wrap;list-style-position:inside;padding-left:8px!important}}
 .hid{opacity:.3}
+.navb{margin-left:auto;display:flex;gap:6px;order:3}#nxt{font-size:1.1rem;padding:8px 20px}
 .eqf{display:flex;flex-wrap:nowrap;align-items:center;gap:4px;font-size:1.1rem;font-weight:700;white-space:nowrap}
 .eqf input{width:2.7em!important;font-size:1.05rem!important;padding:3px!important;border-radius:8px!important}
 .eqf+.row,.eqb{margin-top:6px}
@@ -68,7 +69,7 @@ details summary{cursor:pointer;font-weight:700;color:var(--navy);font-size:1.1re
  <div class="grp"><span class="gl">Vorwissen</span><span class="grp" id="tv"></span><span class="gl" style="min-width:0;margin-left:14px">Pakete knacken</span><span class="grp" id="tp"></span></div>
  <details><summary>Übungsheft-Aufgaben</summary><div class="grp" style="margin-top:6px"><span class="grp" id="tu"></span></div></details>
 </div>
-<div class="card" id="hd"><div><span class="ti" id="ti"></span> <span class="tg" id="tg"></span></div>
+<div class="card" id="hd"><div><span class="ti" id="ti"></span> <span class="tg" id="tg"></span></div><span class="navb"><button id="prv" aria-label="Vorherige Aufgabe">← Zurück</button> <button class="go" id="nxt">Weiter →</button></span>
  <ol class="steps3 hint" id="hint" style="margin-top:6px;padding:8px 12px 8px 2em"></ol></div>
 <div class="stage">
 <div id="left"><div class="card"><div id="eq"></div>
@@ -255,6 +256,7 @@ function pick(i){cur=i;var T=TASKS[i];tot=null;guess=null;
   $("hint").innerHTML=(T.hint||(T.vw?VH:(T.grp=="p"?PH:UH))).map(function(x){return"<li>"+x+"</li>"}).join("");
   $("h2c").textContent=T.total?"Prüfe euer Gesamtgewicht":"Prüfe dein Ergebnis";
   document.querySelectorAll("#nav button").forEach(function(b){b.setAttribute("aria-selected",+b.dataset.i==i)});
+  var pp=SEQ.indexOf(i);$("prv").disabled=pp<=0;$("nxt").disabled=pp<0||pp>=SEQ.length-1;
   cm("");msg("");$("g").value="";["gx","gy","gg"].forEach(function(k){$(k).value=""});draw()}
 TASKS.forEach(function(t,i){var b=document.createElement("button");b.dataset.i=i;b.setAttribute("role","tab");
   if(t.grp=="v"){b.className="tab";b.textContent=t.lab;b.onclick=function(){pick(i)};$("tv").appendChild(b)}
@@ -276,6 +278,9 @@ $("mck").onclick=function(){var a=$("m1").value.trim().toLowerCase(),b=$("m2").v
  var ok1=a=="gleichgewicht",ok2=b=="rechts"||b=="rechten seite"||b=="auf der rechten seite";
  if(ok1&&ok2){m.className="ok";m.textContent="✓ Genau! Das ist der Merksatz.";$("mfull").style.display="block"}
  else{m.className="bad";m.textContent=(!ok1&&!ok2)?"Noch nicht. Denke an die Waage.":(!ok1?"Die erste Lücke stimmt noch nicht. Denke an die Waage.":"Die zweite Lücke stimmt noch nicht.")}};
+var SEQ=[];TASKS.forEach(function(t,i){if(t.grp!="u")SEQ.push(i)});
+function step(d){var p=SEQ.indexOf(cur),n=p<0?(d>0?0:SEQ.length-1):p+d;if(n>=0&&n<SEQ.length)pick(SEQ[n])}
+$("nxt").onclick=function(){step(1)};$("prv").onclick=function(){step(-1)};
 $("go").onclick=apply;$("ck").onclick=check;$("ck2").onclick=check;
 $("undo").onclick=function(){if(hist.length>1){hist.pop();guess=null;cm("");msg("");draw()}};
 $("rst").onclick=function(){var v=V;pick(cur);if(TASKS[cur].own){setV(v);draw()}};
